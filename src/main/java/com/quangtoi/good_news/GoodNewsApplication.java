@@ -1,7 +1,9 @@
 package com.quangtoi.good_news;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class GoodNewsApplication {
@@ -10,4 +12,8 @@ public class GoodNewsApplication {
         SpringApplication.run(GoodNewsApplication.class, args);
     }
 
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
