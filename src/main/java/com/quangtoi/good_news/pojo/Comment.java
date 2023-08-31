@@ -1,5 +1,6 @@
 package com.quangtoi.good_news.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,14 +37,19 @@ public class Comment implements Serializable {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Basic
+    @Column(name = "active", nullable = false)
+    private boolean active;
+
     @ManyToOne
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private Comment parentId;
 
-    @OneToMany(mappedBy = "parentId")
+    @OneToMany(mappedBy = "parentId", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Comment> comments;
 
     @ManyToOne
     @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
-    private Article articleId;
+    private Article article;
 }

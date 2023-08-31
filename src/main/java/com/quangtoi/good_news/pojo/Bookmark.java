@@ -28,5 +28,5 @@ public class Bookmark implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
-    private Article articleId;
+    private Article article;
 }

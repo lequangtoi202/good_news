@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -38,7 +39,6 @@ public class Notification implements Serializable {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
-    @Basic
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @OneToMany(mappedBy = "notificationId")
+    private Set<UserNotification> userNotifications;
 }

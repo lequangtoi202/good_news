@@ -43,6 +43,10 @@ public class Article implements Serializable {
     private String source;
 
     @Basic
+    @Column(name = "active")
+    private boolean active;
+
+    @Basic
     @Column(name = "created_at")
     private Timestamp createdAt;
 
@@ -50,12 +54,12 @@ public class Article implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @Basic
+    @ManyToOne
     @Column(name = "category_id", nullable = false)
-    private Long categoryId;
+    private Category category;
 
-    @Basic
+    @ManyToOne
     @Column(name = "authors_id", nullable = false)
-    private Long authorsId;
+    private Authors authors;
 
 }

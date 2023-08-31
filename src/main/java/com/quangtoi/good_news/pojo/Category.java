@@ -29,10 +29,6 @@ public class Category implements Serializable {
     private String description;
 
     @Basic
-    @Column(name = "image")
-    private String image;
-
-    @Basic
     @Column(name = "is_active")
     private Byte isActive;
 

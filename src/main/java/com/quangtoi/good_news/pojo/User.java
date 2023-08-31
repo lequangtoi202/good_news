@@ -34,7 +34,7 @@ public class User implements Serializable {
 
     @Basic
     @Column(name = "is_active")
-    private Byte isActive;
+    private boolean isActive;
 
     @Basic
     @Column(name = "full_name", length = 50)
@@ -71,5 +71,5 @@ public class User implements Serializable {
     private Set<Comment> comments;
 
     @OneToMany(mappedBy = "userId")
-    private Set<Notification> notifications;
+    private Set<UserNotification> userNotifications;
 }

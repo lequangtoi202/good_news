@@ -16,13 +16,13 @@ public class AuthorResponse {
     private String username;
     private String password;
     private String avatar;
-    private Byte isActive;
+    private boolean isActive;
     private String fullName;
     private Timestamp dateOfBirth;
     private String address;
     private String email;
     private String authorName;
-    private String isConfirmed;
+    private boolean isConfirmed;
     private String passwordResetToken;
     private Timestamp createdAt;
     private Timestamp updatedAt;

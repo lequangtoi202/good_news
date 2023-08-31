@@ -20,9 +20,6 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-@PropertySources({
-        @PropertySource("classpath:configs.properties")
-})
 public class JwtTokenProvider implements Serializable {
     @Autowired
     private UserRepository userRepository;

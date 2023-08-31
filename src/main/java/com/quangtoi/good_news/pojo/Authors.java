@@ -26,7 +26,7 @@ public class Authors implements Serializable {
 
     @Basic
     @Column(name = "is_confirmed")
-    private Byte isConfirmed;
+    private boolean isConfirmed;
 
     @Basic
     @Column(name = "created_at")
@@ -40,6 +40,6 @@ public class Authors implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "authorsId")
+    @OneToMany(mappedBy = "authorsId", fetch = FetchType.LAZY)
     private Set<Article> articles;
 }
