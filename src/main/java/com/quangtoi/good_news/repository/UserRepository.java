@@ -4,18 +4,20 @@ import com.quangtoi.good_news.pojo.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    List<User> findAllByActive(boolean isActive);
 
-    User findByUsername(String username);
+    User findByUsernameAndActive(String username, boolean isActive);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndActive(String email, boolean isActive);
 
     Optional<User> findByPasswordResetToken(String token);
 
-    boolean existsByUsername(String username);
+    boolean existsByUsernameAndActive(String username, boolean isActive);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndActive(String email, boolean isActive);
 }

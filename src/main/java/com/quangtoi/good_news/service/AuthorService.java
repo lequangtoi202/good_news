@@ -10,7 +10,11 @@ import java.util.List;
 public interface AuthorService {
     AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest);
 
+    AuthorResponse confirmAuthor(User currentUser, Long authorId);
+
     List<AuthorResponse> getAllAuthors();
 
     Authors getAuthorsByUserId(Long userId);
+
+    void deleteAuthorById(User currentUser, Long authorId);
 }

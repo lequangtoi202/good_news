@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.isTokenExpired(token)) {
             String refreshToken = request.getHeader("Refresh-token");
 
+            // chỗ này đang dư thừa
             JwtResponse jwtResponse = jwtTokenProvider.refreshToken(refreshToken);
 
         } else {

@@ -27,7 +27,8 @@ public interface UserService extends UserDetailsService {
 
     UserResponse getMyAccount(String username);
 
-    List<UserResponse> getAllUsers();
+    List<UserResponse> getAllUsersIsActive();
+    List<UserResponse> getAllUsersIsNotActive();
 
     UserResponse getUserById(Long userId);
 }

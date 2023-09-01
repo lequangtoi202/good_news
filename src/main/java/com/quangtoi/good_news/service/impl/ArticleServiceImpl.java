@@ -128,27 +128,39 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllArticles() {
-        return null;
+    public List<Article> getAllArticlesIsActive() {
+        return articleRepository.findAllByActive(true);
+    }
+
+    @Override
+    public List<Article> getAllArticlesIsNotActive() {
+        return articleRepository.findAllByActive(false);
     }
 
     @Override
     public List<Article> getAllArticlesByCategory(Long cateId) {
-        return null;
+        Category category = categoryRepository.findById(cateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
+        return articleRepository.findAllByCategoryAndActive(category, true);
     }
 
     @Override
     public List<Article> getAllArticlesByTag(Long tagId) {
-        return null;
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
+        return articleRepository.findAllByTagAndActive(tag.getId(), true);
     }
 
     @Override
     public List<Article> getAllArticlesByAuthor(Long authorId) {
-        return null;
+        Authors authors = authorRepository.findById(authorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
+        return articleRepository.findAllByAuthorsAndActive(authors, true);
     }
 
     @Override
     public Article getArticleById(Long articleId) {
-        return null;
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
     }
 }

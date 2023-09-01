@@ -43,6 +43,6 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public List<Bookmark> getAllBookmarksOfUser(Long userId) {
-        return null;
+        return bookmarkRepository.findAllByUserId(userId);
     }
 }

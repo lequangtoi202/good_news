@@ -37,11 +37,12 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> getAllTags() {
-        return null;
+        return tagRepository.findAll();
     }
 
     @Override
     public Tag getTagById(Long tagId) {
-        return null;
+        return tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
     }
 }

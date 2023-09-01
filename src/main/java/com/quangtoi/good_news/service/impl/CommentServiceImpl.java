@@ -73,21 +73,25 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> getAllComments() {
-        return null;
+        return commentRepository.findAllByActive(true);
     }
 
     @Override
     public List<Comment> getAllCommentsByArticleId(Long articleId) {
-        return null;
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
+
+        return commentRepository.findAllByArticleAndActive(article, true);
     }
 
     @Override
-    public Comment getCommentsById(Long commentId) {
-        return null;
+    public Comment getCommentById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
     }
 
     @Override
     public List<Comment> getAllCommentsByParentId(Long parentId) {
-        return null;
+        return commentRepository.findAllByParentIdAndActive(parentId, true);
     }
 }

@@ -18,7 +18,9 @@ public interface ArticleService {
 
     boolean deleteTagFromArticle(Long articleId, Long tagId);
 
-    List<Article> getAllArticles();
+    List<Article> getAllArticlesIsActive();
+
+    List<Article> getAllArticlesIsNotActive();
 
     List<Article> getAllArticlesByCategory(Long cateId);
 

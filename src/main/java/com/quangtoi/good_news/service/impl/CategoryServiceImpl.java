@@ -49,11 +49,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getAllCategories() {
-        return null;
+        return categoryRepository.findAllByIsActive(true);
     }
 
     @Override
     public Category getCategoryById(Long cateId) {
-        return null;
+        return categoryRepository.findById(cateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
     }
 }

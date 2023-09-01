@@ -30,8 +30,8 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
+    @PostMapping("/api/v1/login")
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
         try {
             authenticate(loginRequest.getUsername(), loginRequest.getPassword());
         } catch (Exception e) {

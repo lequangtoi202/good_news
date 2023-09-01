@@ -36,11 +36,17 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> getAllRoles() {
-        return null;
+        return roleRepository.findAll();
     }
 
     @Override
     public Role getRoleById(Long roleId) {
-        return null;
+        return roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
+    }
+
+    @Override
+    public List<Role> getAllRoleOfUser(Long userId) {
+        return roleRepository.getAllByUser(userId);
     }
 }

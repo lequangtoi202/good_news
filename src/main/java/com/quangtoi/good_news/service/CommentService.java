@@ -16,7 +16,7 @@ public interface CommentService {
 
     List<Comment> getAllCommentsByArticleId(Long articleId);
 
-    Comment getCommentsById(Long commentId);
+    Comment getCommentById(Long commentId);
 
     List<Comment> getAllCommentsByParentId(Long parentId);
 }
