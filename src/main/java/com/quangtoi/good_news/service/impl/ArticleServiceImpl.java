@@ -33,9 +33,9 @@ public class ArticleServiceImpl implements ArticleService {
     private TagRepository tagRepository;
 
     @Override
-    public Article addArticle(ArticleDto articleDto, Long categoryId, User currentUser, MultipartFile image) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
+    public Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image) {
+        Category category = categoryRepository.findById(articleDto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", articleDto.getCategoryId()));
         Authors authors = authorRepository.findByUser(currentUser);
         if (authors == null) {
             throw new ResourceNotFoundException("Author", "userId", currentUser.getId());

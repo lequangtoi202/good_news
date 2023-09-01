@@ -68,6 +68,8 @@ public class AuthorServiceImpl implements AuthorService {
         boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
         if (hasRoleAdmin) {
             authors.setConfirmed(true);
+        } else {
+            throw new BadCredentialsException("You do not have permission");
         }
         return mapper.map(authorRepository.save(authors), AuthorResponse.class);
     }

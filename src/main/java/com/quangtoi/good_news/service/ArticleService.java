@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ArticleService {
-    Article addArticle(ArticleDto articleDto, Long categoryId, User currentUser, MultipartFile image);
+    Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image);
 
     Article updateArticle(ArticleDto articleDto, Long articleId, User currentUser);
 

@@ -52,14 +52,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getByUsername(String username) {
-        return mapper.map(userRepository.findByUsernameAndActive(username, true), UserResponse.class);
+    public User getByUsername(String username) {
+        return userRepository.findByUsernameAndActive(username, true);
     }
 
     @Override
-    public UserResponse getByEmail(String email) {
-        return mapper.map(userRepository.findByEmailAndActive(email, true)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email)), UserResponse.class);
+    public User getByEmail(String email) {
+        return userRepository.findByEmailAndActive(email, true)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
     @Override

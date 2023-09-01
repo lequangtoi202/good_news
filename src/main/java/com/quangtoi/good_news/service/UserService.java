@@ -9,9 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    UserResponse getByUsername(String username);
+    User getByUsername(String username);
 
-    UserResponse getByEmail(String email);
+    User getByEmail(String email);
 
     Boolean existsByUsername(String username);
 
