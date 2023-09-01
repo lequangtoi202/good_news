@@ -39,6 +39,8 @@ public class UserServiceImpl implements UserService {
     private ModelMapper mapper;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -73,8 +75,17 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmailAndActive(req.getEmail(), true)) {
             throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Email is already exist");
         }
-        User user = User.builder().username(req.getUsername()).address(req.getAddress()).dateOfBirth(req.getDateOfBirth()).email(req.getEmail()).fullName(req.getFullName()).build();
-        user.setPassword(req.getPassword());
+        User user = User.builder().
+                username(req.getUsername())
+                .address(req.getAddress())
+                .dateOfBirth(req.getDateOfBirth())
+                .email(req.getEmail())
+                .fullName(req.getFullName())
+                .build();
+
+        if (req.getConfirmPassword().equals(req.getPassword())) {
+            req.setPassword(encoder.encode(req.getPassword()));
+        }
         user.setAvatar(avatar == null ? null : imageService.uploadImage(avatar));
         user.setActive(true);
         User userSaved = userRepository.save(user);
@@ -102,7 +113,6 @@ public class UserServiceImpl implements UserService {
         userProfile.setDateOfBirth(req.getDateOfBirth());
         userProfile.setEmail(req.getEmail());
         userProfile.setFullName(req.getFullName());
-        userProfile.setPassword(req.getPassword());
         userProfile.setAvatar(avatar == null ? null : imageService.uploadImage(avatar));
 
         User userSaved = userRepository.save(userProfile);
@@ -112,7 +122,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse changePassword(User user, String newPassword) {
         User currentUser = userRepository.findById(user.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", user.getId()));
-        currentUser.setPassword(newPassword);
+        currentUser.setPassword(encoder.encode(newPassword));
         User userSaved = userRepository.save(currentUser);
         return mapper.map(userSaved, UserResponse.class);
     }

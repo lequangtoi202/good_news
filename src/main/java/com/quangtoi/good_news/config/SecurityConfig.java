@@ -46,7 +46,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter authenticationFilter;
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public static PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 

@@ -30,8 +30,6 @@ public class AuthController {
     private UserService userService;
     @Autowired
     private AuthService authService;
-    @Autowired
-    private PasswordEncoder encoder;
 
     @PostMapping("/api/v1/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
@@ -56,9 +54,6 @@ public class AuthController {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
-            if (req.getConfirmPassword().equals(req.getPassword())) {
-                req.setPassword(encoder.encode(req.getPassword()));
-            }
             UserResponse userResponse = authService.userRegister(req, avatar);
             return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
         } catch (JsonProcessingException e) {
