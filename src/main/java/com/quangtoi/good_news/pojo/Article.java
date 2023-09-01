@@ -55,11 +55,11 @@ public class Article implements Serializable {
     private Timestamp updatedAt;
 
     @ManyToOne
-    @Column(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne
-    @Column(name = "authors_id", nullable = false)
+    @JoinColumn(name = "authors_id", nullable = false)
     private Authors authors;
 
 }

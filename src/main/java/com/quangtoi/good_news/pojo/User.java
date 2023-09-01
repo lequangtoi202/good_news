@@ -34,7 +34,7 @@ public class User implements Serializable {
 
     @Basic
     @Column(name = "is_active")
-    private boolean isActive;
+    private boolean active;
 
     @Basic
     @Column(name = "full_name", length = 50)

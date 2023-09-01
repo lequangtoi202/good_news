@@ -38,7 +38,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(category, cateId));
     }
 
-    @PutMapping("/api/v1/categories/{cateId}")
+    @DeleteMapping("/api/v1/categories/{cateId}")
     public ResponseEntity<?> deleteCategory(@PathVariable("cateId") Long cateId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

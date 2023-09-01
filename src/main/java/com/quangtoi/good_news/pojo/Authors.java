@@ -40,6 +40,6 @@ public class Authors implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @OneToMany(mappedBy = "authorsId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "authors", fetch = FetchType.LAZY)
     private Set<Article> articles;
 }

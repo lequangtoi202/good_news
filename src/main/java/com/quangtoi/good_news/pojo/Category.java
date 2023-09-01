@@ -40,6 +40,6 @@ public class Category implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "categoryId")
+    @OneToMany(mappedBy = "category")
     private Set<Article> articles;
 }

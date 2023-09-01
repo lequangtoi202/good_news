@@ -34,7 +34,7 @@ public class JwtTokenProvider implements Serializable {
     // generate JWT token
     public JwtResponse generateToken(UserDetails userDetails) {
         String username = userDetails.getUsername();
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsernameAndActive(username, true);
         Date currentDate = new Date();
 
         Date expireDate = new Date(currentDate.getTime() + JwtExpirationDate);
@@ -120,7 +120,7 @@ public class JwtTokenProvider implements Serializable {
         if (validateToken(refreshToken)) {
             try {
                 String username = getUsername(refreshToken);
-                User user = userRepository.findByUsername(username);
+                User user = userRepository.findByUsernameAndActive(username, true);
                 String accessToken = Jwts.builder()
                         .setSubject(username)
                         .claim("email", user.getEmail())
