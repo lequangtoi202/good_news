@@ -1,5 +1,6 @@
 package com.quangtoi.good_news.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,7 +31,7 @@ public class Category implements Serializable {
 
     @Basic
     @Column(name = "is_active")
-    private Byte isActive;
+    private boolean isActive;
 
     @Basic
     @Column(name = "created_at")
@@ -40,6 +41,7 @@ public class Category implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private Set<Article> articles;
 }

@@ -23,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -81,10 +83,12 @@ public class UserServiceImpl implements UserService {
                 .dateOfBirth(req.getDateOfBirth())
                 .email(req.getEmail())
                 .fullName(req.getFullName())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
 
         if (req.getConfirmPassword().equals(req.getPassword())) {
-            req.setPassword(encoder.encode(req.getPassword()));
+            user.setPassword(encoder.encode(req.getPassword()));
         }
         user.setAvatar(avatar == null ? null : imageService.uploadImage(avatar));
         user.setActive(true);

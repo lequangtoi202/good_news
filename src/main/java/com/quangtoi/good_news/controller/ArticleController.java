@@ -32,17 +32,17 @@ public class ArticleController {
         }
     }
 
-    @GetMapping("/api/v1/articles/authors/{authorId}")
+    @GetMapping("/api/v1/authors/{authorId}/articles")
     public ResponseEntity<?> getAllArticlesByAuthor(@PathVariable("authorId") Long authorId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByAuthor(authorId));
     }
 
-    @GetMapping("/api/v1/articles/tags/{tagId}")
+    @GetMapping("/api/v1/tags/{tagId}/articles")
     public ResponseEntity<?> getAllArticlesByTag(@PathVariable("tagId") Long tagId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByTag(tagId));
     }
 
-    @GetMapping("/api/v1/articles/category/{cateId}")
+    @GetMapping("/api/v1/category/{cateId}/articles")
     public ResponseEntity<?> getAllArticlesByCategory(@PathVariable("cateId") Long cateId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByCategory(cateId));
     }

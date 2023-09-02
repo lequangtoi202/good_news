@@ -31,7 +31,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/api/v1/login")
+    @PostMapping("/api/v1/auth/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
         try {
             authenticate(loginRequest.getUsername(), loginRequest.getPassword());
@@ -49,7 +49,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/v1/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> userRegister(@RequestParam("registerRequest") String registerRequest, @RequestPart("avatar") MultipartFile avatar) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {

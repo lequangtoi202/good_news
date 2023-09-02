@@ -1,5 +1,6 @@
 package com.quangtoi.good_news.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +26,7 @@ public class User implements Serializable {
     private String username;
 
     @Basic
-    @Column(name = "password", length = 45)
+    @Column(name = "password", length = 255)
     private String password;
 
     @Basic
@@ -64,12 +65,15 @@ public class User implements Serializable {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "userId")
     private Set<Bookmark> bookmarks;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "userId")
     private Set<Comment> comments;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "userId")
     private Set<UserNotification> userNotifications;
 }

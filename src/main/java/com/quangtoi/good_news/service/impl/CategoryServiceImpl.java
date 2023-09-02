@@ -23,7 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .description(category.getDescription())
                 .name(category.getName())
                 .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
-                .isActive(category.getIsActive())
+                .isActive(true)
                 .build();
         return categoryRepository.save(categorySave);
     }
@@ -32,10 +32,9 @@ public class CategoryServiceImpl implements CategoryService {
     public Category updateCategory(Category category, Long cateId) {
         Category categoryUpdate = categoryRepository.findById(cateId)
                         .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
-        categoryUpdate.setId(categoryUpdate.getId());
         categoryUpdate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         categoryUpdate.setDescription(category.getDescription());
-        categoryUpdate.setIsActive(category.getIsActive());
+        categoryUpdate.setActive(category.isActive());
         categoryUpdate.setName(category.getName());
         return categoryRepository.save(categoryUpdate);
     }
@@ -44,7 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Long cateId) {
         Category categorySaved = categoryRepository.findById(cateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
-        categoryRepository.delete(categorySaved);
+        categorySaved.setActive(false);
+        categoryRepository.save(categorySaved);
     }
 
     @Override
