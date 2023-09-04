@@ -24,17 +24,17 @@ public class RoleController {
     }
 
     @GetMapping("/api/v1/roles/{roleId}")
-    public ResponseEntity<?> getRoleById(@PathVariable("roleId") Long roleId) {
+    public ResponseEntity<?> getRoleById(@PathVariable("roleId") final Long roleId) {
         return ResponseEntity.ok(roleService.getRoleById(roleId));
     }
 
     @GetMapping("/api/v1/users/{userId}/roles")
-    public ResponseEntity<?> getAllRolesOfUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getAllRolesOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(roleService.getAllRoleOfUser(userId));
     }
 
     @PostMapping("/api/v1/roles")
-    public ResponseEntity<?> addRole(@RequestBody Role role) {
+    public ResponseEntity<?> addRole(@RequestBody final Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -50,7 +50,7 @@ public class RoleController {
     }
 
     @PutMapping("/api/v1/roles/{roleId}")
-    public ResponseEntity<?> updateRole(@PathVariable("roleId") Long roleId, @RequestBody Role role) {
+    public ResponseEntity<?> updateRole(@PathVariable("roleId") final Long roleId, @RequestBody final Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -66,7 +66,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/api/v1/roles/{roleId}")
-    public ResponseEntity<?> deleteRole(@PathVariable("roleId")Long roleId) {
+    public ResponseEntity<?> deleteRole(@PathVariable("roleId") final Long roleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();

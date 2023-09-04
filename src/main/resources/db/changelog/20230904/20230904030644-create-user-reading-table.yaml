@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230904030644-1
+      author: toi.lequang
+      changes:
+        - createTable:
+            schemaName: good_news
+            tableName: user_article
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_user_article_user_id
+                    referencedTableSchemaName: good_news
+                    referencedTableName: user
+                    referencedColumnNames: id
+              - column:
+                  name: article_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_user_article_article_id
+                    referencedTableSchemaName: good_news
+                    referencedTableName: article
+                    referencedColumnNames: id
+              - column:
+                  name: created_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+      comment: Create user article table

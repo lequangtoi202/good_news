@@ -1,9 +1,11 @@
 package com.quangtoi.good_news.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quangtoi.good_news.dto.ArticleDto;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.User;
+import com.quangtoi.good_news.pojo.UserArticle;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class ArticleController {
     private final ObjectMapper objectMapper;
 
     @GetMapping("/api/v1/articles")
-    public ResponseEntity<?> getAllArticles(@RequestParam(value = "active", required = false, defaultValue = "true") boolean isActive) {
+    public ResponseEntity<?> getAllArticles(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive) {
         if (isActive) {
             return ResponseEntity.ok().body(articleService.getAllArticlesIsActive());
         } else {
@@ -33,27 +35,27 @@ public class ArticleController {
     }
 
     @GetMapping("/api/v1/authors/{authorId}/articles")
-    public ResponseEntity<?> getAllArticlesByAuthor(@PathVariable("authorId") Long authorId) {
+    public ResponseEntity<?> getAllArticlesByAuthor(@PathVariable("authorId") final Long authorId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByAuthor(authorId));
     }
 
     @GetMapping("/api/v1/tags/{tagId}/articles")
-    public ResponseEntity<?> getAllArticlesByTag(@PathVariable("tagId") Long tagId) {
+    public ResponseEntity<?> getAllArticlesByTag(@PathVariable("tagId") final Long tagId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByTag(tagId));
     }
 
     @GetMapping("/api/v1/category/{cateId}/articles")
-    public ResponseEntity<?> getAllArticlesByCategory(@PathVariable("cateId") Long cateId) {
+    public ResponseEntity<?> getAllArticlesByCategory(@PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByCategory(cateId));
     }
 
     @GetMapping("/api/v1/articles/{articleId}")
-    public ResponseEntity<?> getAllArticlesById(@PathVariable("articleId") Long articleId) {
+    public ResponseEntity<?> getAllArticlesById(@PathVariable("articleId") final Long articleId) {
         return ResponseEntity.ok().body(articleService.getArticleById(articleId));
     }
 
     @PostMapping("/api/v1/articles")
-    public ResponseEntity<?> createArticle(@RequestPart("articleRequest") String articleRequest, @RequestPart("image") MultipartFile image) {
+    public ResponseEntity<?> createArticle(@RequestPart("articleRequest") final String articleRequest, @RequestPart("image") MultipartFile image) throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -61,7 +63,7 @@ public class ArticleController {
                 String username = ((UserDetails) principal).getUsername();
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
-                    ArticleDto articleDto = objectMapper.convertValue(articleRequest, ArticleDto.class);
+                    ArticleDto articleDto = objectMapper.readValue(articleRequest, ArticleDto.class);
                     try {
                         Article articleSaved = articleService.addArticle(articleDto, currentUser, image);
                         return new ResponseEntity<>(articleSaved, HttpStatus.CREATED);
@@ -75,7 +77,7 @@ public class ArticleController {
     }
 
     @PutMapping("/api/v1/articles/{articleId}")
-    public ResponseEntity<?> updateArticle(@RequestBody ArticleDto articleRequest, @PathVariable("articleId") Long articleId) {
+    public ResponseEntity<?> updateArticle(@RequestBody final ArticleDto articleRequest, @PathVariable("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -83,9 +85,8 @@ public class ArticleController {
                 String username = ((UserDetails) principal).getUsername();
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
-                    ArticleDto articleDto = objectMapper.convertValue(articleRequest, ArticleDto.class);
                     try {
-                        Article articleSaved = articleService.updateArticle(articleDto, articleId, currentUser);
+                        Article articleSaved = articleService.updateArticle(articleRequest, articleId, currentUser);
                         return new ResponseEntity<>(articleSaved, HttpStatus.OK);
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -97,7 +98,7 @@ public class ArticleController {
     }
 
     @DeleteMapping("/api/v1/articles/{articleId}")
-    public ResponseEntity<?> deleteArticle(@PathVariable("articleId") Long articleId) {
+    public ResponseEntity<?> deleteArticle(@PathVariable("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -118,7 +119,7 @@ public class ArticleController {
     }
 
     @PostMapping("/api/v1/articles/add-tag")
-    public ResponseEntity<?> addTagToArticle(@RequestParam("articleId") Long articleId, @RequestParam("tagId") Long tagId) {
+    public ResponseEntity<?> addTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -143,7 +144,7 @@ public class ArticleController {
     }
 
     @DeleteMapping("/api/v1/articles/delete-tag")
-    public ResponseEntity<?> deleteTagToArticle(@RequestParam("articleId") Long articleId, @RequestParam("tagId") Long tagId) {
+    public ResponseEntity<?> deleteTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -158,6 +159,48 @@ public class ArticleController {
                         } else {
                             return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
                         }
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PutMapping("/api/v1/articles/{articleId}/update-status")
+    public ResponseEntity<?> updateStatusArticle(@PathVariable("articleId") final Long articleId, @RequestParam("status") String status) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        Article article = articleService.updateStatusArticle(status, articleId, currentUser);
+                        return ResponseEntity.ok(article);
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/api/v1/articles/{articleId}/user-acticles")
+    public ResponseEntity<?> addArticleRead(@PathVariable("articleId") final Long articleId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        UserArticle articleRead = articleService.addArticleRead(articleId, currentUser);
+                        return ResponseEntity.ok(articleRead);
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                     }

@@ -16,7 +16,7 @@ public class UserResponse {
     private String username;
     private String password;
     private String avatar;
-    private Byte isActive;
+    private boolean active;
     private String fullName;
     private Timestamp dateOfBirth;
     private String address;

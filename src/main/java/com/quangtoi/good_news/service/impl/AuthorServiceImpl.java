@@ -51,6 +51,8 @@ public class AuthorServiceImpl implements AuthorService {
                 .dateOfBirth(currentUser.getDateOfBirth())
                 .email(currentUser.getEmail())
                 .fullName(currentUser.getFullName())
+                .username(currentUser.getUsername())
+                .id(currentUser.getId())
                 .isActive(currentUser.isActive())
                 .isConfirmed(authorsSaved.isConfirmed())
                 .password(currentUser.getPassword())
@@ -61,7 +63,47 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public AuthorResponse confirmAuthor(User currentUser, Long authorId) {
+    public AuthorResponse updateAuthor(User currentUser, AuthorRequest authorRequest) {
+        Authors authors = authorRepository.findByUser(currentUser);
+        if (authors == null) {
+            throw new ResourceNotFoundException("Author", "userId", currentUser.getId());
+        }
+        authors.setAuthorName(authorRequest.getAuthorName());
+        Authors authorsSaved = authorRepository.save(authors);
+        AuthorResponse authorResponse = AuthorResponse.builder()
+                .authorName(authorsSaved.getAuthorName())
+                .createdAt(authorsSaved.getCreatedAt())
+                .address(currentUser.getAddress())
+                .avatar(currentUser.getAvatar())
+                .dateOfBirth(currentUser.getDateOfBirth())
+                .email(currentUser.getEmail())
+                .fullName(currentUser.getFullName())
+                .username(currentUser.getUsername())
+                .id(currentUser.getId())
+                .isActive(currentUser.isActive())
+                .isConfirmed(authorsSaved.isConfirmed())
+                .password(currentUser.getPassword())
+                .passwordResetToken(currentUser.getPasswordResetToken())
+                .updatedAt(authorsSaved.getUpdatedAt())
+                .build();
+        return authorResponse;
+    }
+
+    @Override
+    public Authors updateAuthorById(User currentUser, AuthorRequest authorRequest, Long authorId) {
+        Authors authors = authorRepository.findById(authorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
+        List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
+        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        if (!hasRoleAdmin) {
+            throw new BadCredentialsException("You do not have permission");
+        }
+        authors.setAuthorName(authorRequest.getAuthorName());
+        return authorRepository.save(authors);
+    }
+
+    @Override
+    public Authors confirmAuthor(User currentUser, Long authorId) {
         Authors authors = authorRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
@@ -71,15 +113,12 @@ public class AuthorServiceImpl implements AuthorService {
         } else {
             throw new BadCredentialsException("You do not have permission");
         }
-        return mapper.map(authorRepository.save(authors), AuthorResponse.class);
+        return authorRepository.save(authors);
     }
 
     @Override
-    public List<AuthorResponse> getAllAuthors() {
-        return authorRepository.findAll()
-                .stream()
-                .map(a -> mapper.map(a, AuthorResponse.class))
-                .collect(Collectors.toList());
+    public List<Authors> getAllAuthors() {
+        return authorRepository.findAll();
     }
 
     @Override

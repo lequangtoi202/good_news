@@ -6,6 +6,7 @@ import com.quangtoi.good_news.pojo.*;
 import com.quangtoi.good_news.repository.*;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.ImageService;
+import com.quangtoi.good_news.utils.ArticleStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,8 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleTagRepository articleTagRepository;
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private UserArticleRepository userArticleRepository;
 
     @Override
     public Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image) {
@@ -50,9 +53,8 @@ public class ArticleServiceImpl implements ArticleService {
                     .category(category)
                     .content(articleDto.getContent())
                     .createdAt(Timestamp.valueOf(LocalDateTime.now()))
-                    .description(articleDto.getDescription())
                     .source(articleDto.getSource())
-                    .status(articleDto.getStatus())
+                    .status(ArticleStatus.DRAFT.toString())
                     .title(articleDto.getTitle())
                     .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
                     .image(image == null ? null : imageService.uploadImage(image))
@@ -66,8 +68,6 @@ public class ArticleServiceImpl implements ArticleService {
     public Article updateArticle(ArticleDto articleDto, Long articleId, User currentUser) {
         Category category = categoryRepository.findById(articleDto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", articleDto.getCategoryId()));
-        Authors authors = authorRepository.findById(articleDto.getAuthorsId())
-                .orElseThrow(() -> new ResourceNotFoundException("Author", "id", articleDto.getAuthorsId()));
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
@@ -75,11 +75,26 @@ public class ArticleServiceImpl implements ArticleService {
                 .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_AUTHOR"));
         if (hasRoleAdminOrAuthor) {
             article.setContent(articleDto.getContent());
-            article.setDescription(articleDto.getDescription());
             article.setSource(articleDto.getSource());
             article.setStatus(articleDto.getStatus());
             article.setTitle(articleDto.getTitle());
+            article.setStatus(articleDto.getStatus());
             article.setCategory(category);
+            article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            return articleRepository.save(article);
+        }
+        throw new BadCredentialsException("You don not have permission to update article");
+    }
+
+    @Override
+    public Article updateStatusArticle(String status, Long articleId, User currentUser) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
+        List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
+        boolean hasRoleAdminOrAuthor = roles.stream()
+                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_APPROVER"));
+        if (hasRoleAdminOrAuthor) {
+            article.setStatus(status);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             return articleRepository.save(article);
         }
@@ -106,10 +121,10 @@ public class ArticleServiceImpl implements ArticleService {
     public boolean addTagToArticle(Long articleId, Long tagId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
-        Tag tag = tagRepository.findById(articleId)
+        Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
         ArticleTag articleTag = ArticleTag.builder()
-                .article(article)
+                .articleId(article.getId())
                 .tagId(tag.getId())
                 .build();
         articleTagRepository.save(articleTag);
@@ -120,9 +135,9 @@ public class ArticleServiceImpl implements ArticleService {
     public boolean deleteTagFromArticle(Long articleId, Long tagId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
-        Tag tag = tagRepository.findById(articleId)
+        Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
-        ArticleTag articleTag = articleTagRepository.findByArticleAndTagId(article, tag.getId());
+        ArticleTag articleTag = articleTagRepository.findByArticleIdAndTagId(article.getId(), tag.getId());
         articleTagRepository.delete(articleTag);
         return true;
     }
@@ -162,5 +177,19 @@ public class ArticleServiceImpl implements ArticleService {
     public Article getArticleById(Long articleId) {
         return articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
+    }
+
+    @Override
+    public UserArticle addArticleRead(Long articleId, User user) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
+
+        UserArticle userArticle = new UserArticle();
+        userArticle.setArticleId(article.getId());
+        userArticle.setUserId(user.getId());
+        userArticle.setCreatedOn(Timestamp.valueOf(LocalDateTime.now()));
+        userArticle.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+
+        return userArticleRepository.save(userArticle);
     }
 }

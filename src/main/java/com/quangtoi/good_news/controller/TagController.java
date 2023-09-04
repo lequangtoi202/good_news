@@ -25,12 +25,12 @@ public class TagController {
     }
 
     @GetMapping("/api/v1/tags/{tagId}")
-    public ResponseEntity<?> getTagById(@PathVariable("tagId") Long tagId) {
+    public ResponseEntity<?> getTagById(@PathVariable("tagId") final Long tagId) {
         return ResponseEntity.ok(tagService.getTagById(tagId));
     }
 
     @PostMapping("/api/v1/tags")
-    public ResponseEntity<?> addTag(@RequestBody Tag tag) {
+    public ResponseEntity<?> addTag(@RequestBody final Tag tag) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -46,7 +46,7 @@ public class TagController {
     }
 
     @PutMapping("/api/v1/tags/{tagId}")
-    public ResponseEntity<?> updateTag(@PathVariable("tagId") Long tagId, @RequestBody Tag tag) {
+    public ResponseEntity<?> updateTag(@PathVariable("tagId") final Long tagId, @RequestBody final Tag tag) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -62,7 +62,7 @@ public class TagController {
     }
 
     @DeleteMapping("/api/v1/tags/{tagId}")
-    public ResponseEntity<?> deleteTag(@PathVariable("tagId") Long tagId) {
+    public ResponseEntity<?> deleteTag(@PathVariable("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();

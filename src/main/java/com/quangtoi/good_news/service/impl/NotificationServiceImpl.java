@@ -11,6 +11,8 @@ import com.quangtoi.good_news.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,10 +25,14 @@ public class NotificationServiceImpl implements NotificationService {
     private UserRepository userRepository;
     @Override
     public Notification addNewNotification(Long userId, Notification notification) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        notification.setSentAt(Timestamp.valueOf(LocalDateTime.now()));
+        notification.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         Notification notificationSaved = notificationRepository.save(notification);
         UserNotification userNotification = new UserNotification();
         userNotification.setNotificationId(notificationSaved.getId());
-        userNotification.setUserId(userId);
+        userNotification.setUserId(user.getId());
         userNotificationRepository.save(userNotification);
         return notificationSaved;
     }

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230904030643-1
+      author: toi.lequang
+      changes:
+        - insert:
+            tableName: role
+            schemaName: good_news
+            columns:
+              - column:
+                  name: name
+                  value: ROLE_TEST
+      comment: Test change data in liquibase

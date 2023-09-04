@@ -19,12 +19,12 @@ public class BookmarkController {
     private final UserService userService;
 
     @GetMapping("/api/v1/users/{userId}/bookmarks")
-    public ResponseEntity<?> getAllBookmarksOfUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getAllBookmarksOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(userId));
     }
 
     @PostMapping("/api/v1/bookmarks")
-    public ResponseEntity<?> addArticleToBookmark(@RequestParam("articleId") Long articleId) {
+    public ResponseEntity<?> addArticleToBookmark(@RequestParam("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -44,7 +44,7 @@ public class BookmarkController {
     }
 
     @DeleteMapping("/api/v1/bookmarks")
-    public ResponseEntity<?> deleteArticleFromBookmark(@RequestParam("articleId") Long articleId) {
+    public ResponseEntity<?> deleteArticleFromBookmark(@RequestParam("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();

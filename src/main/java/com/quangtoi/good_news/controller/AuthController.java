@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quangtoi.good_news.dto.JwtResponse;
 import com.quangtoi.good_news.dto.UserResponse;
+import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.LoginRequest;
 import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.AuthService;
@@ -16,9 +17,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,7 +35,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/api/v1/auth/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest){
+    public ResponseEntity<?> login(@RequestBody @Valid final LoginRequest loginRequest){
         try {
             authenticate(loginRequest.getUsername(), loginRequest.getPassword());
         } catch (Exception e) {
@@ -44,13 +47,15 @@ public class AuthController {
         return ResponseEntity.ok().body(jwtResponse);
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(final String username, final String password) throws Exception {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @PostMapping(value = "/api/v1/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> userRegister(@RequestParam("registerRequest") String registerRequest, @RequestPart("avatar") MultipartFile avatar) throws Exception {
+    public ResponseEntity<UserResponse> userRegister(
+            @RequestParam("registerRequest") final String registerRequest,
+            @RequestPart("avatar") final MultipartFile avatar) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
@@ -59,5 +64,23 @@ public class AuthController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/api/v1/auth/google-login")
+    public ResponseEntity<?> addUserInfoGoogleLogin(@AuthenticationPrincipal OAuth2User oauth2User) {
+
+        String userEmail = oauth2User.getAttribute("email");
+        String userName = oauth2User.getAttribute("name");
+
+        User user = userService.getByEmail(userEmail);
+        if (user == null) {
+            RegisterRequest registerRequest = RegisterRequest.builder()
+                    .username(userName)
+                    .email(userEmail)
+                    .build();
+
+            userService.register(registerRequest, null);
+        }
+        return ResponseEntity.ok("Đăng nhập thành công");
     }
 }

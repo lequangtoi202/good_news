@@ -24,22 +24,22 @@ public class CategoryController {
     }
 
     @GetMapping("/api/v1/categories/{cateId}")
-    public ResponseEntity<?> getCategoryById(@PathVariable("cateId") Long cateId) {
+    public ResponseEntity<?> getCategoryById(@PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok(categoryService.getCategoryById(cateId));
     }
 
     @PostMapping("/api/v1/categories")
-    public ResponseEntity<?> addCategory(@RequestBody Category category) {
+    public ResponseEntity<?> addCategory(@RequestBody final Category category) {
         return ResponseEntity.ok(categoryService.addCategory(category));
     }
 
     @PutMapping("/api/v1/categories/{cateId}")
-    public ResponseEntity<?> updateCategory(@RequestBody Category category, @PathVariable("cateId") Long cateId) {
+    public ResponseEntity<?> updateCategory(@RequestBody final Category category, @PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok(categoryService.updateCategory(category, cateId));
     }
 
     @DeleteMapping("/api/v1/categories/{cateId}")
-    public ResponseEntity<?> deleteCategory(@PathVariable("cateId") Long cateId) {
+    public ResponseEntity<?> deleteCategory(@PathVariable("cateId") final Long cateId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();

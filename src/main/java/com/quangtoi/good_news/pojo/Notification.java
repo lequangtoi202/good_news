@@ -1,5 +1,6 @@
 package com.quangtoi.good_news.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,7 +30,7 @@ public class Notification implements Serializable {
 
     @Basic
     @Column(name = "is_sent")
-    private Byte isSent;
+    private boolean isSent;
 
     @Basic
     @Column(name = "sent_at")
@@ -39,6 +40,7 @@ public class Notification implements Serializable {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "notificationId")
     private Set<UserNotification> userNotifications;
 }

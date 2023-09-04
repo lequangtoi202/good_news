@@ -28,7 +28,7 @@ public class UserController {
     private final JavaMailSender mailSender;
 
     @GetMapping("/api/v1/users")
-    public ResponseEntity<?> getAllUsers(@RequestParam(value = "active", required = false, defaultValue = "true") boolean active) {
+    public ResponseEntity<?> getAllUsers(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean active) {
         if (active) {
             return ResponseEntity.ok(userService.getAllUsersIsActive());
         } else {
@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getUserById(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
@@ -55,12 +55,14 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/by-email")
-    public ResponseEntity<?> getByEmail(@RequestParam("email") String email) {
+    public ResponseEntity<?> getByEmail(@RequestParam("email") final String email) {
         return ResponseEntity.ok(userService.getByEmail(email));
     }
 
     @PutMapping("/api/v1/users")
-    public ResponseEntity<?> updateProfile(@RequestPart("registerReq") RegisterRequest req, @RequestPart("avatar") MultipartFile avatar) {
+    public ResponseEntity<?> updateProfile(
+            @RequestPart("registerReq") final RegisterRequest req,
+            @RequestPart("avatar") final  MultipartFile avatar) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -74,7 +76,7 @@ public class UserController {
     }
 
     @PostMapping("/api/v1/users/forgot-password")
-    public ResponseEntity<String> processForgotPassword(HttpServletRequest request, @RequestParam String email) {
+    public ResponseEntity<String> processForgotPassword(HttpServletRequest request, @RequestParam final String email) {
         String token = RandomString.make(45);
         try {
             userService.updateResetPassword(token, email);
@@ -88,7 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/reset-password")
-    public ResponseEntity<String> checkTokenIsValid(@RequestParam String token) {
+    public ResponseEntity<String> checkTokenIsValid(@RequestParam final String token) {
         User user = userService.getByResetPasswordToken(token);
         if (user != null) {
             return ResponseEntity.ok().body("Token is valid!");
@@ -109,7 +111,7 @@ public class UserController {
     }
 
     @PostMapping("/api/v1/users/change-password")
-    public ResponseEntity<?> changePassword(@RequestParam("newPassword") String newPassword) {
+    public ResponseEntity<?> changePassword(@RequestParam("newPassword") final String newPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -123,7 +125,7 @@ public class UserController {
     }
 
     @Async
-    public void sendMail(String email, String resetPasswordLink) throws MessagingException {
+    public void sendMail(final String email, final String resetPasswordLink) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
         helper.setFrom("2051052140toi@ou.edu.vn");

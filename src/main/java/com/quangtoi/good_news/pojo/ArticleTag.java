@@ -22,8 +22,8 @@ public class ArticleTag implements Serializable {
     @Column(name = "tag_id", nullable = false)
     private Long tagId;
 
-    @ManyToOne
-    @JoinColumn(name = "article_id", referencedColumnName = "id", nullable = false)
-    private Article article;
+    @Basic
+    @Column(name = "article_id", nullable = false)
+    private Long articleId;
 
 }

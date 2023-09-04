@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse changePassword(User user, String newPassword) {
         User currentUser = userRepository.findById(user.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", user.getId()));
         currentUser.setPassword(encoder.encode(newPassword));
+        currentUser.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         User userSaved = userRepository.save(currentUser);
         return mapper.map(userSaved, UserResponse.class);
     }
@@ -136,6 +137,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmailAndActive(email, true)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         user.setPasswordResetToken(token);
+        user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         userRepository.save(user);
     }
 
@@ -171,5 +173,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return mapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    public void processOAuthPostLogin(String username) {
+        User existUser = userRepository.findByUsernameAndActive(username, true);
+
+        if (existUser == null) {
+            User newAcc = new User();
+            newAcc.setUsername(username);
+            newAcc.setEmail(username);
+
+            userRepository.save(newAcc);
+        }
     }
 }

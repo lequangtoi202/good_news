@@ -1,10 +1,12 @@
 package com.quangtoi.good_news.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -29,10 +31,6 @@ public class Article implements Serializable {
     @Basic
     @Column(name = "image")
     private String image;
-
-    @Basic
-    @Column(name = "description", length = -1)
-    private String description;
 
     @Basic
     @Column(name = "status", length = 50)
@@ -62,4 +60,7 @@ public class Article implements Serializable {
     @JoinColumn(name = "authors_id", nullable = false)
     private Authors authors;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "articleId")
+    private Set<ArticleTag> articleTags;
 }

@@ -32,4 +32,6 @@ public interface UserService extends UserDetailsService {
     List<UserResponse> getAllUsersIsNotActive();
 
     UserResponse getUserById(Long userId);
+
+    void processOAuthPostLogin(String username);
 }

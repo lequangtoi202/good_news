@@ -1,9 +1,12 @@
 package com.quangtoi.good_news.service.impl;
 
+import com.quangtoi.good_news.dto.UserResponse;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Role;
+import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.repository.RoleRepository;
 import com.quangtoi.good_news.service.RoleService;
+import com.quangtoi.good_news.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,8 @@ import java.util.List;
 public class RoleServiceImpl implements RoleService {
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private UserService userService;
 
     @Override
     public Role addRole(Role role) {
@@ -47,6 +52,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Role> getAllRoleOfUser(Long userId) {
+        UserResponse user = userService.getUserById(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User", "id", userId);
+        }
         return roleRepository.getAllByUser(userId);
     }
 }

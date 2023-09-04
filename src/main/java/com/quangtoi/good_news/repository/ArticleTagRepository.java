@@ -9,5 +9,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public interface ArticleTagRepository extends JpaRepository<ArticleTag, Long> {
-    ArticleTag findByArticleAndTagId(Article article, Long tagId);
+    ArticleTag findByArticleIdAndTagId(Long articleId, Long tagId);
 }

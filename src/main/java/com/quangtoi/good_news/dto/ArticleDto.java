@@ -16,7 +16,6 @@ public class ArticleDto {
     private String title;
     private String content;
     private String image;
-    private String description;
     private String status;
     private String source;
     private Timestamp createdAt;

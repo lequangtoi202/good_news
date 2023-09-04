@@ -25,22 +25,22 @@ public class NotificationController {
     }
 
     @GetMapping("/api/v1/notifications/{notifiId}")
-    public ResponseEntity<?> getNotificationById(@PathVariable("notifiId") Long notifiId) {
+    public ResponseEntity<?> getNotificationById(@PathVariable("notifiId") final Long notifiId) {
         return ResponseEntity.ok(notificationService.getNotificationById(notifiId));
     }
 
     @GetMapping("/api/v1/users/{userId}/notifications")
-    public ResponseEntity<?> getNotificationOfUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getNotificationOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(notificationService.getAllNotificationsByUserId(userId));
     }
 
     @PostMapping("/api/v1/users/{userId}/notifications")
-    public ResponseEntity<?> addNewNotification(@PathVariable("userId") Long userId, @RequestBody Notification notification) {
+    public ResponseEntity<?> addNewNotification(@PathVariable("userId") final Long userId, @RequestBody final Notification notification) {
         return ResponseEntity.ok(notificationService.addNewNotification(userId, notification));
     }
 
     @DeleteMapping("/api/v1/notifications/{notifiId}")
-    public ResponseEntity<?> deleteNotification(@PathVariable("notifiId") Long notifiId) {
+    public ResponseEntity<?> deleteNotification(@PathVariable("notifiId") final Long notifiId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();

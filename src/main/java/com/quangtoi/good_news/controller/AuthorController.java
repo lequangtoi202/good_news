@@ -24,7 +24,7 @@ public class AuthorController {
     private final UserService userService;
 
     @PostMapping("/api/v1/authors")
-    public ResponseEntity<?> registerAuthor(@RequestBody AuthorRequest authorRequest) {
+    public ResponseEntity<?> registerAuthor(@RequestBody final AuthorRequest authorRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -40,8 +40,42 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    @PutMapping("/api/v1/authors")
+    public ResponseEntity<?> updateAuthor(@RequestBody final AuthorRequest authorRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    AuthorResponse authorResponse = authorService.updateAuthor(currentUser, authorRequest);
+                    return ResponseEntity.ok(authorResponse);
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PutMapping("/api/v1/authors/{authorId}")
+    public ResponseEntity<?> updateAuthorById(@RequestBody final AuthorRequest authorRequest, @PathVariable("authorId") final Long authorId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    Authors authorUpdated = authorService.updateAuthorById(currentUser, authorRequest, authorId);
+                    return ResponseEntity.ok(authorUpdated);
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
     @PostMapping("/api/v1/authors/{authorId}/confirm")
-    public ResponseEntity<?> confirmAuthor(@PathVariable("authorId") Long authorId) {
+    public ResponseEntity<?> confirmAuthor(@PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -50,7 +84,7 @@ public class AuthorController {
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
                     try {
-                        AuthorResponse authorResponse = authorService.confirmAuthor(currentUser, authorId);
+                        Authors authorResponse = authorService.confirmAuthor(currentUser, authorId);
                         return ResponseEntity.ok(authorResponse);
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -63,12 +97,12 @@ public class AuthorController {
 
     @GetMapping("/api/v1/authors")
     public ResponseEntity<?> getAllAuthors() {
-        List<AuthorResponse> authorResponse = authorService.getAllAuthors();
+        List<Authors> authorResponse = authorService.getAllAuthors();
         return ResponseEntity.ok(authorResponse);
     }
 
     @DeleteMapping("/api/v1/authors/{authorId}")
-    public ResponseEntity<?> deleteAuthorById(@PathVariable("authorId") Long authorId) {
+    public ResponseEntity<?> deleteAuthorById(@PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -89,7 +123,7 @@ public class AuthorController {
     }
 
     @GetMapping("/api/v1/users/{userId}/authors")
-    public ResponseEntity<?> getAuthorByUserId(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getAuthorByUserId(@PathVariable("userId") final Long userId) {
         Authors author = authorService.getAuthorsByUserId(userId);
         return ResponseEntity.ok(author);
     }

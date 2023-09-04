@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/20230904/20230904030642-initial-migrate-good_news_schema.yaml
+  - include:
+      file: db/changelog/20230904/20230904030643-insert-test-change-in-changelog.yaml
+  - include:
+      file: db/changelog/20230904/20230904030644-create-user-reading-table.yaml

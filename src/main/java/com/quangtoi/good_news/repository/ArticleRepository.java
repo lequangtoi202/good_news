@@ -13,7 +13,7 @@ import java.util.List;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByCategoryAndActive(Category category, boolean isActive);
 
-    @Query("select a from Article a join ArticleTag at on at.article.id = a.id where at.tagId=:tagId and a.active=:isActive")
+    @Query("select a from Article a join ArticleTag at on at.articleId = a.id where at.tagId=:tagId and a.active=:isActive")
     List<Article> findAllByTagAndActive(Long tagId, boolean isActive);
 
     List<Article> findAllByAuthorsAndActive(Authors authors, boolean isActive);

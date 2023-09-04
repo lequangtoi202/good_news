@@ -6,6 +6,7 @@ import com.quangtoi.good_news.pojo.Bookmark;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.repository.ArticleRepository;
 import com.quangtoi.good_news.repository.BookmarkRepository;
+import com.quangtoi.good_news.repository.UserRepository;
 import com.quangtoi.good_news.service.BookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private BookmarkRepository bookmarkRepository;
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Bookmark addArticleToBookmark(Long articleId, User currentUser) {
@@ -43,6 +46,8 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public List<Bookmark> getAllBookmarksOfUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return bookmarkRepository.findAllByUserId(userId);
     }
 }

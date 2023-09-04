@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230904030642-1
+      author: toi.lequang
+      changes:
+        - sqlFile:
+            endDelimiter: //
+            splitStatements: true
+            path: db/data/20230904/dum_data.sql
+            stripComments: true
+      comment: Initial good_news schema
+      dbms: postgresql
