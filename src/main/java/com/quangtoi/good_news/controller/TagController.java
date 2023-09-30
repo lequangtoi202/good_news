@@ -4,6 +4,7 @@ import com.quangtoi.good_news.pojo.Tag;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.TagService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.service.UserTagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,21 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class TagController {
     private final TagService tagService;
     private final UserService userService;
+    private final UserTagService userTagService;
 
 
     @GetMapping("/api/v1/tags")
     public ResponseEntity<?> getAllTags() {
         return ResponseEntity.ok(tagService.getAllTags());
+    }
+
+    @GetMapping("/api/v1/articles/{articleId}/tags")
+    public ResponseEntity<?> getAllTagsOfArticle(@PathVariable("articleId") Long articleId) {
+        return ResponseEntity.ok(tagService.getAllTagsOfArticle(articleId));
     }
 
     @GetMapping("/api/v1/tags/{tagId}")
@@ -72,6 +80,38 @@ public class TagController {
                 if (currentUser != null) {
                     tagService.deleteTag(tagId);
                     return ResponseEntity.ok("Successfully");
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/api/v1/tags/{tagId}/follow")
+    public ResponseEntity<?> toggleFollowTag(@PathVariable("tagId") long tagId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    return ResponseEntity.ok(userTagService.followTag(tagId, currentUser.getId()));
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @GetMapping("/api/v1/tags/{tagId}/follow-status")
+    public ResponseEntity<?> getFollowStatus(@PathVariable("tagId") long tagId) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    return ResponseEntity.ok(userTagService.getFollowStatus(tagId, currentUser.getId()));
                 }
             }
         }

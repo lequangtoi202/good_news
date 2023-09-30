@@ -4,8 +4,10 @@ import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Category;
 import com.quangtoi.good_news.repository.CategoryRepository;
 import com.quangtoi.good_news.service.CategoryService;
+import com.quangtoi.good_news.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -15,9 +17,11 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ImageService imageService;
 
     @Override
-    public Category addCategory(Category category) {
+    public Category addCategory(Category category, MultipartFile image) {
         Category categorySave = Category.builder()
                 .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .description(category.getDescription())
@@ -25,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .isActive(true)
                 .build();
+        categorySave.setImage(image == null ? null : imageService.uploadImage(image));
         return categoryRepository.save(categorySave);
     }
 

@@ -3,9 +3,11 @@ package com.quangtoi.good_news.service.impl;
 import com.quangtoi.good_news.dto.UserResponse;
 import com.quangtoi.good_news.exception.GoodNewsApiException;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
+import com.quangtoi.good_news.pojo.RegisterNotification;
 import com.quangtoi.good_news.pojo.Role;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.pojo.UserRole;
+import com.quangtoi.good_news.repository.RegisterNotificationRepository;
 import com.quangtoi.good_news.repository.RoleRepository;
 import com.quangtoi.good_news.repository.UserRepository;
 import com.quangtoi.good_news.repository.UserRoleRepository;
@@ -43,6 +45,8 @@ public class UserServiceImpl implements UserService {
     private ImageService imageService;
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private RegisterNotificationRepository registerNotificationRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -102,6 +106,11 @@ public class UserServiceImpl implements UserService {
         userRole.setRole(role);
         userRoleRepository.save(userRole);
         return mapper.map(userSaved, UserResponse.class);
+    }
+
+    @Override
+    public UserResponse saveUser(User user) {
+        return mapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @Override
@@ -174,6 +183,31 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return mapper.map(user, UserResponse.class);
     }
+
+    @Override
+    public RegisterNotification registerReceiveNotification(RegisterNotification registerNotification) {
+        RegisterNotification registerNotificationSaved =
+                registerNotificationRepository.findByEmail(registerNotification.getEmail());
+        if (registerNotificationSaved != null) {
+            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "You have already register!");
+        }
+        registerNotification.setCreatedOn(Timestamp.valueOf(LocalDateTime.now()));
+        registerNotification.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+        registerNotification.setActive(true);
+        return registerNotificationRepository.save(registerNotification);
+    }
+
+    @Override
+    public RegisterNotification cancelReceiveNotification(String email) {
+        RegisterNotification registerNotification = registerNotificationRepository.findByEmail(email);
+        if (registerNotification == null) {
+            throw new ResourceNotFoundException("RegisterNotification", "email", email);
+        }
+        registerNotification.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
+        registerNotification.setActive(false);
+        return registerNotificationRepository.save(registerNotification);
+    }
+
 
     @Override
     public void processOAuthPostLogin(String username) {

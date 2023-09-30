@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230927000001-1
+      author: toi.lequang
+      changes:
+        - addColumn:
+            schemaName: good_news
+            tableName: category
+            columns:
+              - column:
+                  name: image
+                  type: text
+      comment: add image column table category

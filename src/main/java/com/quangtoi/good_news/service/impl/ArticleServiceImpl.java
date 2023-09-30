@@ -7,7 +7,10 @@ import com.quangtoi.good_news.repository.*;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.ImageService;
 import com.quangtoi.good_news.utils.ArticleStatus;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +37,8 @@ public class ArticleServiceImpl implements ArticleService {
     private TagRepository tagRepository;
     @Autowired
     private UserArticleRepository userArticleRepository;
-
+    @Autowired
+    private ModelMapper mapper;
     @Override
     public Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image) {
         Category category = categoryRepository.findById(articleDto.getCategoryId())
@@ -74,11 +78,18 @@ public class ArticleServiceImpl implements ArticleService {
         boolean hasRoleAdminOrAuthor = roles.stream()
                 .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_AUTHOR"));
         if (hasRoleAdminOrAuthor) {
-            article.setContent(articleDto.getContent());
-            article.setSource(articleDto.getSource());
-            article.setStatus(articleDto.getStatus());
-            article.setTitle(articleDto.getTitle());
-            article.setStatus(articleDto.getStatus());
+            if (articleDto.getTitle() != null) {
+                article.setTitle(articleDto.getTitle());
+            }
+            if (articleDto.getContent() != null) {
+                article.setContent(articleDto.getContent());
+            }
+            if (articleDto.getSource() != null) {
+                article.setSource(articleDto.getSource());
+            }
+            if (articleDto.getStatus() != null) {
+                article.setStatus(articleDto.getStatus());
+            }
             article.setCategory(category);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             return articleRepository.save(article);
@@ -148,8 +159,26 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> getLimitNewestArticlesIsActive(Long cateId, int limit) {
+        Category category = categoryRepository.findById(cateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
+        Pageable pageable = PageRequest.of(0, limit);
+        return articleRepository.findLimitNewestArticles(category.getId(), pageable);
+    }
+
+    @Override
+    public List<Article> getAllArticlesWithStatusIsActive(String type) {
+        return articleRepository.findAllByActiveAndStatus(true, type);
+    }
+
+    @Override
     public List<Article> getAllArticlesIsNotActive() {
         return articleRepository.findAllByActive(false);
+    }
+
+    @Override
+    public List<Article> getAllArticlesWithStatusIsNotActive(String type) {
+        return articleRepository.findAllByActiveAndStatus(false, type);
     }
 
     @Override

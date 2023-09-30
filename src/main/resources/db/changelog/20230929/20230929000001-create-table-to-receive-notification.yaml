@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230929000001-1
+      author: toi.lequang
+      changes:
+        - createTable:
+            schemaName: good_news
+            tableName: register_notification
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: email
+                  type: varchar(50)
+              - column:
+                  name: name
+                  type: varchar(50)
+              - column:
+                  name: active
+                  type: tinyint
+                  defaultValue: 1
+              - column:
+                  name: created_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+      comment: Create user register receive notification table to register receive notification

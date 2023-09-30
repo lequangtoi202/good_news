@@ -8,6 +8,8 @@ public interface CommentService {
 
     Comment addComment(Comment commentReq, Long articleId, Long userId);
 
+    Comment replyComment(Comment commentReq, Long articleId, Long parentId, Long userId);
+
     Comment updateComment(Comment commentReq, Long articleId, Long commentId, Long userId);
 
     void deleteComment(Long commentId, Long userId);

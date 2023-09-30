@@ -14,5 +14,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findAllByActive(boolean active);
 
-    List<Comment> findAllByParentIdAndActive(Long parentId, boolean active);
+    List<Comment> findAllByParentIdAndActive(Comment parent, boolean active);
 }

@@ -46,7 +46,7 @@ public class User implements Serializable {
     private Timestamp dateOfBirth;
 
     @Basic
-    @Column(name = "address", length = 45)
+    @Column(name = "address")
     private String address;
 
     @Basic
@@ -64,6 +64,10 @@ public class User implements Serializable {
     @Basic
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Basic
+    @Column(name = "provider")
+    private String provider;
 
     @JsonIgnore
     @OneToMany(mappedBy = "userId")

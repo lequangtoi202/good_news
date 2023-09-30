@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230930000001-1
+      author: toi.lequang
+      changes:
+        - addColumn:
+            schemaName: good_news
+            tableName: user
+            columns:
+              - column:
+                  name: provider
+                  type: text
+                  constraints:
+                    nullable: true
+      comment: add provider column table user

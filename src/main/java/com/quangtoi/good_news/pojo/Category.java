@@ -30,6 +30,10 @@ public class Category implements Serializable {
     private String description;
 
     @Basic
+    @Column(name = "image", length = -1)
+    private String image;
+
+    @Basic
     @Column(name = "is_active")
     private boolean isActive;
 

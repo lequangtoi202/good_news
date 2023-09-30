@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  mysql:
+    container_name: mysqldb
+    image: mysql
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: lqt25092002
+      MYSQL_DATABASE: good_news
+    networks:
+      springboot-mysql-net:
+
+networks:
+  springboot-mysql-net:
+    driver: bridge

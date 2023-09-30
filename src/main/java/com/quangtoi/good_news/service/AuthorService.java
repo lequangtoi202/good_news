@@ -8,7 +8,7 @@ import com.quangtoi.good_news.request.AuthorRequest;
 import java.util.List;
 
 public interface AuthorService {
-    AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest);
+    AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest) throws Exception;
 
     AuthorResponse updateAuthor(User currentUser, AuthorRequest authorRequest);
 

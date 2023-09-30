@@ -34,7 +34,11 @@ public class AuthorServiceImpl implements AuthorService {
     private ModelMapper mapper;
 
     @Override
-    public AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest) {
+    public AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest) throws Exception {
+        Authors authorSaved = authorRepository.findByUser(currentUser);
+        if (authorSaved != null) {
+            throw new Exception("Tài khoản này đã gửi yêu cầu. Vui lòng chờ xác nhận.");
+        }
         Authors authors = Authors.builder()
                 .isConfirmed(false)
                 .authorName(authorRequest.getAuthorName())

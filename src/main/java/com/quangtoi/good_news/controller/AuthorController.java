@@ -19,12 +19,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuthorController {
     private final AuthorService authorService;
     private final UserService userService;
 
     @PostMapping("/api/v1/authors")
-    public ResponseEntity<?> registerAuthor(@RequestBody final AuthorRequest authorRequest) {
+    public ResponseEntity<?> registerAuthor(@RequestBody final AuthorRequest authorRequest) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -32,8 +33,12 @@ public class AuthorController {
                 String username = ((UserDetails) principal).getUsername();
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
-                    AuthorResponse authorResponse = authorService.registerAuthor(currentUser, authorRequest);
-                    return ResponseEntity.ok(authorResponse);
+                    try {
+                        AuthorResponse authorResponse = authorService.registerAuthor(currentUser, authorRequest);
+                        return ResponseEntity.ok(authorResponse);
+                    } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(e.getMessage());
+                    }
                 }
             }
         }
@@ -126,5 +131,27 @@ public class AuthorController {
     public ResponseEntity<?> getAuthorByUserId(@PathVariable("userId") final Long userId) {
         Authors author = authorService.getAuthorsByUserId(userId);
         return ResponseEntity.ok(author);
+    }
+
+    @GetMapping("/api/v1/authors/me")
+    public ResponseEntity<?> getAuthorMe() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        Authors author = authorService.getAuthorsByUserId(currentUser.getId());
+                        return ResponseEntity.ok(author);
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
     }
 }

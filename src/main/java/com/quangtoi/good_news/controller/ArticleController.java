@@ -8,6 +8,7 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.pojo.UserArticle;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Utility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class ArticleController {
     private final ArticleService articleService;
     private final UserService userService;
@@ -34,6 +36,27 @@ public class ArticleController {
         }
     }
 
+    @GetMapping("/api/v1/articles-status")
+    public ResponseEntity<?> getAllArticlesPublish(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
+                                                   @RequestParam(value = "type") String type) {
+        if (!Utility.isValidArticleStatus(type)) {
+            return ResponseEntity.badRequest().body("Giá trị 'type' không hợp lệ");
+        }
+        if (isActive) {
+            return ResponseEntity.ok().body(articleService.getAllArticlesWithStatusIsActive(type.toUpperCase()));
+        } else {
+            return ResponseEntity.ok().body(articleService.getAllArticlesWithStatusIsNotActive(type.toUpperCase()));
+        }
+    }
+
+    @GetMapping("/api/v1/categories/{cateId}/articles/newest")
+    public ResponseEntity<?> getAllTopNewestArticleArticles(@PathVariable("cateId") Long cateId,
+            @RequestParam(value = "limit", defaultValue = "1") int limit) {
+
+        return ResponseEntity.ok().body(articleService.getLimitNewestArticlesIsActive(cateId, limit));
+
+    }
+
     @GetMapping("/api/v1/authors/{authorId}/articles")
     public ResponseEntity<?> getAllArticlesByAuthor(@PathVariable("authorId") final Long authorId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByAuthor(authorId));
@@ -44,7 +67,7 @@ public class ArticleController {
         return ResponseEntity.ok().body(articleService.getAllArticlesByTag(tagId));
     }
 
-    @GetMapping("/api/v1/category/{cateId}/articles")
+    @GetMapping("/api/v1/categories/{cateId}/articles")
     public ResponseEntity<?> getAllArticlesByCategory(@PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByCategory(cateId));
     }
@@ -178,6 +201,9 @@ public class ArticleController {
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
                     try {
+                        if (!Utility.isValidArticleStatus(status)) {
+                            return ResponseEntity.badRequest().body("Giá trị 'status' không hợp lệ");
+                        }
                         Article article = articleService.updateStatusArticle(status, articleId, currentUser);
                         return ResponseEntity.ok(article);
                     } catch (BadCredentialsException e) {
@@ -199,6 +225,7 @@ public class ArticleController {
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
                     try {
+
                         UserArticle articleRead = articleService.addArticleRead(articleId, currentUser);
                         return ResponseEntity.ok(articleRead);
                     } catch (BadCredentialsException e) {

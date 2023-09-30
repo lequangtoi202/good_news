@@ -1,5 +1,6 @@
 package com.quangtoi.good_news.controller;
 
+import com.quangtoi.good_news.pojo.Bookmark;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.BookmarkService;
 import com.quangtoi.good_news.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class BookmarkController {
     private final BookmarkService bookmarkService;
     private final UserService userService;
@@ -21,6 +23,27 @@ public class BookmarkController {
     @GetMapping("/api/v1/users/{userId}/bookmarks")
     public ResponseEntity<?> getAllBookmarksOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(userId));
+    }
+
+    @GetMapping("/api/v1/bookmarks/me")
+    public ResponseEntity<?> getAllBookmarksOfMe() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(currentUser.getId()));
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @PostMapping("/api/v1/bookmarks")
@@ -33,7 +56,12 @@ public class BookmarkController {
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
                     try {
-                        return ResponseEntity.ok(bookmarkService.addArticleToBookmark(articleId, currentUser));
+                        Bookmark bookmark = bookmarkService.addArticleToBookmark(articleId, currentUser);
+                        if (bookmark != null) {
+                            return ResponseEntity.ok(bookmark);
+                        } else {
+                            return ResponseEntity.noContent().build();
+                        }
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                     }

@@ -5,3 +5,11 @@ databaseChangeLog:
       file: db/changelog/20230904/20230904030643-insert-test-change-in-changelog.yaml
   - include:
       file: db/changelog/20230904/20230904030644-create-user-reading-table.yaml
+  - include:
+      file: db/changelog/20230927/20230927000001-add-field-image-to-category.yaml
+  - include:
+      file: db/changelog/20230928/20230928000001-add-table-user-tag-to-implement-follow-featue.yaml
+  - include:
+      file: db/changelog/20230929/20230929000001-create-table-to-receive-notification.yaml
+  - include:
+      file: db/changelog/20230930/2023093000001-add-column-provider-to-login-with-google.yaml

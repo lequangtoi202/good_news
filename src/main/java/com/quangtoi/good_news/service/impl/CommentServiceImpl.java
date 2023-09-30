@@ -42,6 +42,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public Comment replyComment(Comment commentReq, Long articleId, Long parentId, Long userId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
+        Comment parentComment = commentRepository.findById(parentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", parentId));
+        Comment comment = Comment.builder()
+                .article(article)
+                .content(commentReq.getContent())
+                .active(true)
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
+                .parentId(parentComment)
+                .userId(userId)
+                .build();
+        return commentRepository.save(comment);
+    }
+
+    @Override
     public Comment updateComment(Comment commentReq, Long articleId, Long commentId, Long userId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
@@ -92,6 +110,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> getAllCommentsByParentId(Long parentId) {
-        return commentRepository.findAllByParentIdAndActive(parentId, true);
+        Comment parent = commentRepository.findById(parentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", parentId));
+        return commentRepository.findAllByParentIdAndActive(parent, true);
     }
 }

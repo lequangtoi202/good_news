@@ -13,5 +13,7 @@ public interface TagService {
 
     List<Tag> getAllTags();
 
+    List<Tag> getAllTagsOfArticle(Long articleId);
+
     Tag getTagById(Long tagId);
 }

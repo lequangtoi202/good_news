@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class CommentController {
     private final CommentService commentService;
     private final UserService userService;
@@ -50,6 +51,24 @@ public class CommentController {
                 User currentUser = userService.getByUsername(username);
                 if (currentUser != null) {
                     return ResponseEntity.ok(commentService.addComment(commentReq, articleId, currentUser.getId()));
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/api/v1/articles/{articleId}/comments/{parentId}/comments")
+    public ResponseEntity<?> replyComment(@PathVariable("articleId") final Long articleId,
+                                          @PathVariable("parentId") final Long parentId,
+                                          @RequestBody final Comment commentReq) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    return ResponseEntity.ok(commentService.replyComment(commentReq, articleId, parentId, currentUser.getId()));
                 }
             }
         }

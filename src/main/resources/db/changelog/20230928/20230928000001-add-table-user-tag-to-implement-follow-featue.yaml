@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230928000001-1
+      author: toi.lequang
+      changes:
+        - createTable:
+            schemaName: good_news
+            tableName: user_tag
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_user_tag_user_id
+                    referencedTableSchemaName: good_news
+                    referencedTableName: user
+                    referencedColumnNames: id
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_user_tag_tag_id
+                    referencedTableSchemaName: good_news
+                    referencedTableName: tag
+                    referencedColumnNames: id
+              - column:
+                  name: active
+                  type: tinyint
+                  defaultValue: 1
+              - column:
+                  name: created_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_on
+                  type: timestamp
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+      comment: Create user tag table to implement feature follow tag

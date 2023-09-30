@@ -7,6 +7,7 @@ import com.quangtoi.good_news.dto.UserResponse;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.LoginRequest;
 import com.quangtoi.good_news.request.RegisterRequest;
+import com.quangtoi.good_news.request.ThirdPartyRequest;
 import com.quangtoi.good_news.service.AuthService;
 import com.quangtoi.good_news.service.UserService;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@CrossOrigin
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -47,7 +49,7 @@ public class AuthController {
         return ResponseEntity.ok().body(jwtResponse);
     }
 
-    private void authenticate(final String username, final String password) throws Exception {
+    private void authenticate(final String username, final String password) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -55,7 +57,7 @@ public class AuthController {
     @PostMapping(value = "/api/v1/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> userRegister(
             @RequestParam("registerRequest") final String registerRequest,
-            @RequestPart("avatar") final MultipartFile avatar) throws Exception {
+            @RequestPart("avatar") final MultipartFile avatar) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
@@ -67,20 +69,9 @@ public class AuthController {
     }
 
     @PostMapping("/api/v1/auth/google-login")
-    public ResponseEntity<?> addUserInfoGoogleLogin(@AuthenticationPrincipal OAuth2User oauth2User) {
+    public ResponseEntity<?> addUserInfoGoogleLogin(@RequestBody ThirdPartyRequest thirdPartyPayload) {
 
-        String userEmail = oauth2User.getAttribute("email");
-        String userName = oauth2User.getAttribute("name");
-
-        User user = userService.getByEmail(userEmail);
-        if (user == null) {
-            RegisterRequest registerRequest = RegisterRequest.builder()
-                    .username(userName)
-                    .email(userEmail)
-                    .build();
-
-            userService.register(registerRequest, null);
-        }
-        return ResponseEntity.ok("Đăng nhập thành công");
+        JwtResponse jwtResponse = authService.thirdPartyService(thirdPartyPayload);
+        return ResponseEntity.ok(jwtResponse);
     }
 }

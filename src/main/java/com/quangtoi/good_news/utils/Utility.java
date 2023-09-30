@@ -7,4 +7,13 @@ public class Utility {
         String url = request.getRequestURL().toString();
         return url.replace(request.getServletPath(), "");
     }
+
+    public static boolean isValidArticleStatus(String input) {
+        for (ArticleStatus status : ArticleStatus.values()) {
+            if (status.name().equalsIgnoreCase(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

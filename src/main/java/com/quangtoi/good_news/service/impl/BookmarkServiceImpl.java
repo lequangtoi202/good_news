@@ -28,12 +28,18 @@ public class BookmarkServiceImpl implements BookmarkService {
     public Bookmark addArticleToBookmark(Long articleId, User currentUser) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
-        Bookmark bookmark = Bookmark.builder()
-                .article(article)
-                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
-                .userId(currentUser.getId())
-                .build();
-        return bookmarkRepository.save(bookmark);
+        Bookmark bookmarkExist = bookmarkRepository.findByArticleAndUserId(article, currentUser.getId());
+        if (bookmarkExist != null) {
+            bookmarkRepository.delete(bookmarkExist);
+            return null;
+        } else {
+            Bookmark bookmark = Bookmark.builder()
+                    .article(article)
+                    .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                    .userId(currentUser.getId())
+                    .build();
+            return bookmarkRepository.save(bookmark);
+        }
     }
 
     @Override

@@ -1,0 +1,87 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /
+#datasource
+spring:
+  #mail
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: toiquangle@gmail.com
+    password: hdcsqmtuohkqkvqq
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          timeout: 8000
+  #liquibase
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    url: jdbc:mysql://localhost:3306/good_news
+    password: lqt25092002
+    user: root
+    enabled: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/good_news
+    username: root
+    password: lqt25092002
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  #Oauth2
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 552214950753-fgkuhg87781hrrl8a0kkc6ib7macit88.apps.googleusercontent.com
+            client-secret: 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
+            #spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8099
+            scope: email, profile
+  #/oauth2/authorization/google
+
+  #multipart-file
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 150MB
+      max-request-size: 150MB
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      repositories:
+        enabled: false
+#Redis
+redis:
+  host: localhost
+  port: 6379
+  active: false
+management:
+  health:
+    redis:
+      enabled: false
+#JWT
+app:
+  jwt-secret: 6c045b79e53f8f894a1bb4d60fa4e3b0bf58f5d9bb4b8f368b8b524ca325bc71
+  jwt-expiration-milliseconds: 604800000
+
+#cloudinary
+cloudinary:
+  cloud-name: dbkikuoyy
+  api-key: 567559374386658
+  api-secret: rEfNB-gwv6155y2K_G4RGio8rQc
+
+
+
+

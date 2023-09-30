@@ -1,6 +1,7 @@
 package com.quangtoi.good_news.controller;
 
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
+import com.quangtoi.good_news.pojo.RegisterNotification;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.UserService;
@@ -8,6 +9,7 @@ import com.quangtoi.good_news.utils.Utility;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class UserController {
     private final UserService userService;
     private final JavaMailSender mailSender;
@@ -57,6 +60,11 @@ public class UserController {
     @GetMapping("/api/v1/users/by-email")
     public ResponseEntity<?> getByEmail(@RequestParam("email") final String email) {
         return ResponseEntity.ok(userService.getByEmail(email));
+    }
+
+    @GetMapping("/api/v1/users/by-username")
+    public ResponseEntity<?> getByUsername(@RequestParam("username") final String username) {
+        return ResponseEntity.ok(userService.getByUsername(username));
     }
 
     @PutMapping("/api/v1/users")
@@ -122,6 +130,16 @@ public class UserController {
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/api/v1/users/register-receive-notification")
+    public ResponseEntity<?> registerReceiveNotification(@Valid @RequestBody RegisterNotification registerNotification) {
+        return ResponseEntity.ok(userService.registerReceiveNotification(registerNotification));
+    }
+
+    @DeleteMapping("/api/v1/users/cancel-receive-notification")
+    public ResponseEntity<?> cancelReceiveNotification(@RequestParam("email") String email) {
+        return ResponseEntity.ok(userService.cancelReceiveNotification(email));
     }
 
     @Async

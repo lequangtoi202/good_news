@@ -1,6 +1,7 @@
 package com.quangtoi.good_news.service;
 
 import com.quangtoi.good_news.dto.UserResponse;
+import com.quangtoi.good_news.pojo.RegisterNotification;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,8 @@ public interface UserService extends UserDetailsService {
 
     UserResponse register(RegisterRequest req, MultipartFile avatar);
 
+    UserResponse saveUser(User user);
+
     UserResponse updateProfile(RegisterRequest req, MultipartFile avatar, User currentUser);
 
     UserResponse changePassword(User user, String newPassword);
@@ -32,6 +35,10 @@ public interface UserService extends UserDetailsService {
     List<UserResponse> getAllUsersIsNotActive();
 
     UserResponse getUserById(Long userId);
+
+    RegisterNotification registerReceiveNotification(RegisterNotification registerNotification);
+
+    RegisterNotification cancelReceiveNotification(String email);
 
     void processOAuthPostLogin(String username);
 }
