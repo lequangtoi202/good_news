@@ -4,9 +4,11 @@ import com.quangtoi.good_news.dto.ArticleDto;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.pojo.UserArticle;
-import com.quangtoi.good_news.utils.ArticleStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ArticleService {
@@ -22,13 +24,13 @@ public interface ArticleService {
 
     boolean deleteTagFromArticle(Long articleId, Long tagId);
 
-    List<Article> getAllArticlesIsActive();
+    Page<Article> getAllArticlesIsActive(Pageable pageable);
 
     List<Article> getLimitNewestArticlesIsActive(Long cateId, int limit);
 
     List<Article> getAllArticlesWithStatusIsActive(String type);
 
-    List<Article> getAllArticlesIsNotActive();
+    Page<Article> getAllArticlesIsNotActive(Pageable pageable);
 
     List<Article> getAllArticlesWithStatusIsNotActive(String type);
 
@@ -41,4 +43,6 @@ public interface ArticleService {
     Article getArticleById(Long articleId);
 
     UserArticle addArticleRead(Long articleId, User user);
+
+    void crawlData(String category, User user) throws IOException;
 }

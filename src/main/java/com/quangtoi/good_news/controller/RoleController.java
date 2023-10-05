@@ -5,6 +5,8 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.RoleService;
 import com.quangtoi.good_news.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -14,13 +16,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class RoleController {
     private final RoleService roleService;
     private final UserService userService;
 
     @GetMapping("/api/v1/roles")
-    public ResponseEntity<?> getAllRoles() {
+    public ResponseEntity<?> getAllRoles(
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "pageNumber", required = false) Integer pageNumber
+    ) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return ResponseEntity.ok(roleService.getAllRolesPageable(pageable));
+        }
         return ResponseEntity.ok(roleService.getAllRoles());
     }
 

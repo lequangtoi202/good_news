@@ -6,6 +6,8 @@ import com.quangtoi.good_news.service.TagService;
 import com.quangtoi.good_news.service.UserService;
 import com.quangtoi.good_news.service.UserTagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class TagController {
     private final TagService tagService;
     private final UserService userService;
@@ -23,7 +25,14 @@ public class TagController {
 
 
     @GetMapping("/api/v1/tags")
-    public ResponseEntity<?> getAllTags() {
+    public ResponseEntity<?> getAllTags(
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "pageNumber", required = false) Integer pageNumber
+    ) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return ResponseEntity.ok(tagService.getAllTagsPageable(pageable));
+        }
         return ResponseEntity.ok(tagService.getAllTags());
     }
 

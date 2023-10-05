@@ -7,6 +7,8 @@ import com.quangtoi.good_news.request.AuthorRequest;
 import com.quangtoi.good_news.service.AuthorService;
 import com.quangtoi.good_news.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class AuthorController {
     private final AuthorService authorService;
     private final UserService userService;
@@ -101,7 +103,14 @@ public class AuthorController {
     }
 
     @GetMapping("/api/v1/authors")
-    public ResponseEntity<?> getAllAuthors() {
+    public ResponseEntity<?> getAllAuthors(
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "pageNumber", required = false) Integer pageNumber
+    ) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return ResponseEntity.ok(authorService.getAllAuthorsPageable(pageable));
+        }
         List<Authors> authorResponse = authorService.getAllAuthors();
         return ResponseEntity.ok(authorResponse);
     }
@@ -118,6 +127,26 @@ public class AuthorController {
                     try {
                         authorService.deleteAuthorById(currentUser, authorId);
                         return ResponseEntity.ok("Successfully");
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @GetMapping("/api/v1/authors/{authorId}")
+    public ResponseEntity<?> getAuthorById(@PathVariable("authorId") final Long authorId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        return ResponseEntity.ok(authorService.getAuthorsById(authorId));
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                     }

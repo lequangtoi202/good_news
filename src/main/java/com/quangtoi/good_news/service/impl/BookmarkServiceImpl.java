@@ -3,12 +3,17 @@ package com.quangtoi.good_news.service.impl;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.Bookmark;
+import com.quangtoi.good_news.pojo.Role;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.repository.ArticleRepository;
 import com.quangtoi.good_news.repository.BookmarkRepository;
+import com.quangtoi.good_news.repository.RoleRepository;
 import com.quangtoi.good_news.repository.UserRepository;
 import com.quangtoi.good_news.service.BookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -23,6 +28,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private ArticleRepository articleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public Bookmark addArticleToBookmark(Long articleId, User currentUser) {
@@ -51,9 +58,26 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
+    public void deleteBookmark(Long bookmarkId, User currentUser) {
+        Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bookmark", "id", bookmarkId));
+        List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
+        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        if (!hasRoleAdmin) {
+            throw new BadCredentialsException("You do not have permission");
+        }
+        bookmarkRepository.delete(bookmark);
+    }
+
+    @Override
     public List<Bookmark> getAllBookmarksOfUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return bookmarkRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public Page<Bookmark> getAllBookmarks(Pageable pageable) {
+        return bookmarkRepository.findAll(pageable);
     }
 }

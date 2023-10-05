@@ -8,6 +8,8 @@ import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.CategoryService;
 import com.quangtoi.good_news.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +21,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class CategoryController {
     private final CategoryService categoryService;
     private final UserService userService;
 
     @GetMapping("/api/v1/categories")
-    public ResponseEntity<?> getAllCategories() {
+    public ResponseEntity<?> getAllCategories(
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "pageNumber", required = false) Integer pageNumber) {
+        if (pageNumber != null && pageSize != null) {
+            Pageable pageable = PageRequest.of(pageNumber, pageSize);
+            return ResponseEntity.ok(categoryService.getAllCategoriesPageable(pageable));
+        }
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
+
 
     @GetMapping("/api/v1/categories/{cateId}")
     public ResponseEntity<?> getCategoryById(@PathVariable("cateId") final Long cateId) {

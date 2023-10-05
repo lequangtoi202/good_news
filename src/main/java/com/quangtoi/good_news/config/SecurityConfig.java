@@ -32,6 +32,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 
 @Configuration
 @EnableWebSecurity
@@ -104,6 +106,10 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/users/forgot-password").permitAll()
                                 .requestMatchers("/api/v1/users/change-password").permitAll()
                                 .requestMatchers("/api/v1/users/reset-password").permitAll()
+                                .requestMatchers("/api/v1/statistic/count-all-articles").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/v1/statistic/most-views-article").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/v1/statistic/article-category").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/v1/statistic/user").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 ).exceptionHandling(e ->
                         e.authenticationEntryPoint(authenticationEntryPoint)
@@ -121,8 +127,12 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

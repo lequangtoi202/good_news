@@ -10,6 +10,8 @@ import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.UserService;
 import com.quangtoi.good_news.utils.Utility;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,20 +21,26 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class ArticleController {
     private final ArticleService articleService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @GetMapping("/api/v1/articles")
-    public ResponseEntity<?> getAllArticles(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive) {
+    public ResponseEntity<?> getAllArticles(
+            @RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
+            @RequestParam("pageSize") int pageSize,
+            @RequestParam("pageNumber") int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         if (isActive) {
-            return ResponseEntity.ok().body(articleService.getAllArticlesIsActive());
+            return ResponseEntity.ok().body(articleService.getAllArticlesIsActive(pageable));
         } else {
-            return ResponseEntity.ok().body(articleService.getAllArticlesIsNotActive());
+            return ResponseEntity.ok().body(articleService.getAllArticlesIsNotActive(pageable));
         }
     }
 
@@ -51,7 +59,7 @@ public class ArticleController {
 
     @GetMapping("/api/v1/categories/{cateId}/articles/newest")
     public ResponseEntity<?> getAllTopNewestArticleArticles(@PathVariable("cateId") Long cateId,
-            @RequestParam(value = "limit", defaultValue = "1") int limit) {
+                                                            @RequestParam(value = "limit", defaultValue = "1") int limit) {
 
         return ResponseEntity.ok().body(articleService.getLimitNewestArticlesIsActive(cateId, limit));
 
@@ -228,6 +236,30 @@ public class ArticleController {
 
                         UserArticle articleRead = articleService.addArticleRead(articleId, currentUser);
                         return ResponseEntity.ok(articleRead);
+                    } catch (BadCredentialsException e) {
+                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/api/v1/crawl-articles-vnExpress")
+    @ResponseBody
+    public ResponseEntity<?> crawlArticlesFromVnExpress(@RequestParam("category") String category) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    try {
+                        articleService.crawlData(category, currentUser);
+                        return ResponseEntity.ok().build();
+                    } catch (IOException e) {
+                        return ResponseEntity.badRequest().build();
                     } catch (BadCredentialsException e) {
                         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                     }

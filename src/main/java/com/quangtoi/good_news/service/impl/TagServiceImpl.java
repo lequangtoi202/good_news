@@ -7,6 +7,7 @@ import com.quangtoi.good_news.repository.ArticleRepository;
 import com.quangtoi.good_news.repository.TagRepository;
 import com.quangtoi.good_news.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,11 @@ public class TagServiceImpl implements TagService {
     public List<Tag> getAllTags() {
         Pageable pageable = PageRequest.of(0, 20);
         return tagRepository.findAllTagLimit(pageable);
+    }
+
+    @Override
+    public Page<Tag> getAllTagsPageable(Pageable pageable) {
+        return tagRepository.findAll(pageable);
     }
 
     @Override

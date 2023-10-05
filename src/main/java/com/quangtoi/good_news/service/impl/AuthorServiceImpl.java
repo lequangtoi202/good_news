@@ -12,6 +12,8 @@ import com.quangtoi.good_news.request.AuthorRequest;
 import com.quangtoi.good_news.service.AuthorService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,10 +128,21 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
+    public Page<Authors> getAllAuthorsPageable(Pageable pageable) {
+        return authorRepository.findAll(pageable);
+    }
+
+    @Override
     public Authors getAuthorsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return authorRepository.findByUser(user);
+    }
+
+    @Override
+    public Authors getAuthorsById(Long authorId) {
+        return authorRepository.findById(authorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
     }
 
     @Override

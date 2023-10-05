@@ -6,6 +6,8 @@ import com.quangtoi.good_news.repository.CategoryRepository;
 import com.quangtoi.good_news.service.CategoryService;
 import com.quangtoi.good_news.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,6 +57,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Category> getAllCategories() {
         return categoryRepository.findAllByIsActive(true);
+    }
+
+    @Override
+    public Page<Category> getAllCategoriesPageable(Pageable pageable) {
+        return categoryRepository.findAllByIsActive(true, pageable);
     }
 
     @Override
