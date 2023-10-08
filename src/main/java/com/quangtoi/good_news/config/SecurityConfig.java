@@ -3,6 +3,7 @@ package com.quangtoi.good_news.config;
 import com.quangtoi.good_news.security.JwtAuthenticationEntryPoint;
 import com.quangtoi.good_news.security.JwtAuthenticationFilter;
 import com.quangtoi.good_news.security.oauth2.CustomOauth2UserService;
+import com.quangtoi.good_news.utils.Routing;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @OpenAPIDefinition(
-        info = @Info(title = "Flower Store API", version = "v1"),
+        info = @Info(title = "Good News API", version = "v1"),
         security = {
                 @SecurityRequirement(name = "jwt")
         }
@@ -96,21 +97,21 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
-                                .requestMatchers("/api/v1/auth/register").permitAll()
-                                .requestMatchers("/api/v1/auth/login").permitAll()
+                                .requestMatchers(Routing.REGISTER).permitAll()
+                                .requestMatchers(Routing.LOGIN).permitAll()
                                 .requestMatchers("/oauth-login").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/api/v1/users/register-receive-notification").permitAll()
-                                .requestMatchers("/api/v1/users/cancel-receive-notification").permitAll()
-                                .requestMatchers("/api/v1/users/forgot-password").permitAll()
-                                .requestMatchers("/api/v1/users/change-password").permitAll()
-                                .requestMatchers("/api/v1/users/reset-password").permitAll()
-                                .requestMatchers("/api/v1/statistic/count-all-articles").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/api/v1/statistic/most-views-article").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/api/v1/statistic/article-category").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/api/v1/statistic/count-all-users").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/api/v1/statistic/user").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(Routing.RECEIVE_NOTIFICATION).permitAll()
+                                .requestMatchers(Routing.CANCEL_RECEIVE_NOTIFICATION).permitAll()
+                                .requestMatchers(Routing.FORGOT_PASSWORD).permitAll()
+                                .requestMatchers(Routing.CHANGE_PASSWORD).permitAll()
+                                .requestMatchers(Routing.RESET_PASSWORD).permitAll()
+                                .requestMatchers(Routing.STAT_COUNT_ARTICLES).hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(Routing.STAT_MOST_VIEWS_ARTICLE).hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(Routing.STAT_CATEGORY_ARTICLE).hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(Routing.STAT_COUNT_USERS).hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(Routing.STAT_ROLE_USER).hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 ).exceptionHandling(e ->
                         e.authenticationEntryPoint(authenticationEntryPoint)

@@ -43,5 +43,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
                     "UNION\n" +
                     "SELECT id FROM category WHERE name LIKE %:kw%) AS subquery",
             nativeQuery = true)
-    Page<Object[]> getAllSearchResult(@Param("kw") String kw, Pageable pageable);
+    List<Object[]> getAllSearchResult(@Param("kw") String kw);
 }

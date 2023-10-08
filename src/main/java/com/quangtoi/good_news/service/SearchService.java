@@ -3,7 +3,9 @@ package com.quangtoi.good_news.service;
 import com.quangtoi.good_news.dto.SearchResult;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 
 public interface SearchService {
-    Page<SearchResult> getAllSearchResult(String kw, int pageSize, int pageNumber);
+    List<SearchResult> getAllSearchResult(String kw);
 }

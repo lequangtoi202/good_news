@@ -9,23 +9,25 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class SearchServiceImpl implements SearchService {
     @Autowired
     private ArticleRepository articleRepository;
 
     @Override
-    public Page<SearchResult> getAllSearchResult(String kw, int pageSize, int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Object[]> results = articleRepository.getAllSearchResult(kw, pageable);
+    public List<SearchResult> getAllSearchResult(String kw) {
+        List<Object[]> results = articleRepository.getAllSearchResult(kw);
 
-        Page<SearchResult> searchResults = results.map(result -> {
+        List<SearchResult> searchResults = results.stream().map(result -> {
             SearchResult searchResult = new SearchResult();
             searchResult.setId(Long.valueOf(result[0].toString()));
             searchResult.setName(result[1].toString());
             searchResult.setType(result[2].toString());
             return searchResult;
-        });
+        }).collect(Collectors.toList());
 
         return searchResults;
     }

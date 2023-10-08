@@ -8,8 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @CrossOrigin("*")
 public class SearchController {
     @Autowired
@@ -17,9 +18,7 @@ public class SearchController {
 
     @GetMapping(Routing.SEARCH)
     public ResponseEntity<?> getSearchResult(
-            @RequestParam("kw") String kw,
-            @RequestParam("pageSize") int pageSize,
-            @RequestParam("pageNumber") int pageNumber) {
-        return ResponseEntity.ok(searchService.getAllSearchResult(kw, pageSize, pageNumber));
+            @RequestParam("kw") String kw) {
+        return ResponseEntity.ok(searchService.getAllSearchResult(kw));
     }
 }
