@@ -1,10 +1,13 @@
 package com.quangtoi.good_news.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.RegisterNotification;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import com.quangtoi.good_news.utils.Utility;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -12,7 +15,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -30,21 +36,25 @@ public class UserController {
     private final UserService userService;
     private final JavaMailSender mailSender;
 
-    @GetMapping("/api/v1/users")
-    public ResponseEntity<?> getAllUsers(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean active) {
+    @GetMapping(Routing.USERS)
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(value = "active", required = false, defaultValue = "true") final boolean active,
+            @RequestParam("pageSize") int pageSize,
+            @RequestParam("pageNumber") int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         if (active) {
-            return ResponseEntity.ok(userService.getAllUsersIsActive());
+            return ResponseEntity.ok(userService.getAllUsersIsActive(pageable));
         } else {
-            return ResponseEntity.ok(userService.getAllUsersIsNotActive());
+            return ResponseEntity.ok(userService.getAllUsersIsNotActive(pageable));
         }
     }
 
-    @GetMapping("/api/v1/users/{userId}")
+    @GetMapping(Routing.USER_BY_ID)
     public ResponseEntity<?> getUserById(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
-    @GetMapping("/api/v1/users/me")
+    @GetMapping(Routing.ME)
     public ResponseEntity<?> getMyAccount() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -57,20 +67,22 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/api/v1/users/by-email")
+    @GetMapping(Routing.USER_BY_EMAIL)
     public ResponseEntity<?> getByEmail(@RequestParam("email") final String email) {
         return ResponseEntity.ok(userService.getByEmail(email));
     }
 
-    @GetMapping("/api/v1/users/by-username")
+    @GetMapping(Routing.USER_BY_USERNAME)
     public ResponseEntity<?> getByUsername(@RequestParam("username") final String username) {
         return ResponseEntity.ok(userService.getByUsername(username));
     }
 
-    @PutMapping("/api/v1/users")
-    public ResponseEntity<?> updateProfile(
-            @RequestPart("registerReq") final RegisterRequest req,
-            @RequestPart("avatar") final  MultipartFile avatar) {
+    @PutMapping(value = Routing.ME, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProfileMe(
+            @RequestParam("userUpdate") final String registerRequest,
+            @RequestPart("avatar") final MultipartFile avatar) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
@@ -83,7 +95,23 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/users/forgot-password")
+    @PutMapping(value = Routing.USER_BY_ID, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProfile(
+            @PathVariable("userId") final Long userId,
+            @RequestParam("userUpdate") final String registerRequest,
+            @RequestPart("avatar") final MultipartFile avatar) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            User currentUser = userService.findUserById(userId);
+            return ResponseEntity.ok(userService.updateProfile(req, avatar, currentUser));
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping(Routing.FORGOT_PASSWORD)
     public ResponseEntity<String> processForgotPassword(HttpServletRequest request, @RequestParam final String email) {
         String token = RandomString.make(45);
         try {
@@ -97,7 +125,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/api/v1/users/reset-password")
+    @GetMapping(Routing.RESET_PASSWORD)
     public ResponseEntity<String> checkTokenIsValid(@RequestParam final String token) {
         User user = userService.getByResetPasswordToken(token);
         if (user != null) {
@@ -106,7 +134,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("Token is invalid!");
     }
 
-    @PostMapping("/api/v1/users/reset-password")
+    @PostMapping(Routing.RESET_PASSWORD)
     public ResponseEntity<String> resetPassword(HttpServletRequest request) {
         String token = request.getParameter("token");
         String password = request.getParameter("password");
@@ -118,7 +146,7 @@ public class UserController {
         return ResponseEntity.badRequest().body("Token is invalid");
     }
 
-    @PostMapping("/api/v1/users/change-password")
+    @PostMapping(Routing.CHANGE_PASSWORD)
     public ResponseEntity<?> changePassword(@RequestParam("newPassword") final String newPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -132,14 +160,20 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/users/register-receive-notification")
+    @PostMapping(Routing.RECEIVE_NOTIFICATION)
     public ResponseEntity<?> registerReceiveNotification(@Valid @RequestBody RegisterNotification registerNotification) {
         return ResponseEntity.ok(userService.registerReceiveNotification(registerNotification));
     }
 
-    @DeleteMapping("/api/v1/users/cancel-receive-notification")
+    @DeleteMapping(Routing.CANCEL_RECEIVE_NOTIFICATION)
     public ResponseEntity<?> cancelReceiveNotification(@RequestParam("email") String email) {
         return ResponseEntity.ok(userService.cancelReceiveNotification(email));
+    }
+
+    @DeleteMapping(Routing.USER_BY_ID)
+    public ResponseEntity<?> softDeleteUser(@PathVariable("userId") Long userId) {
+        userService.softDeleteUser(userId);
+        return ResponseEntity.ok().build();
     }
 
     @Async

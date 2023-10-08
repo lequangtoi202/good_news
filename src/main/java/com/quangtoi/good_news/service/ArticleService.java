@@ -38,6 +38,8 @@ public interface ArticleService {
 
     List<Article> getAllArticlesByTag(Long tagId);
 
+    List<Article> getTop3ArticleNewest();
+
     List<Article> getAllArticlesByAuthor(Long authorId);
 
     Article getArticleById(Long articleId);

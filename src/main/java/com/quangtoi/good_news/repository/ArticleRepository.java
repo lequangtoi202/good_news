@@ -25,7 +25,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     Page<Article> findAllByActive(boolean isActive, Pageable pageable);
 
     @Query("SELECT a FROM Article a WHERE a.active = true AND a.category.id = :cateId ORDER BY a.createdAt DESC")
-    List<Article> findLimitNewestArticles(@Param("cateId") Long cateId, Pageable pageable);
+    List<Article> findLimitNewestArticlesByCate(@Param("cateId") Long cateId, Pageable pageable);
+
+    @Query("SELECT a FROM Article a WHERE a.active = true ORDER BY a.createdAt DESC")
+    List<Article> findLimitNewestArticles(Pageable pageable);
 
     List<Article> findAllByActiveAndStatus(boolean isActive, String type);
 

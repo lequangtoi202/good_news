@@ -177,7 +177,7 @@ public class ArticleServiceImpl implements ArticleService {
         Category category = categoryRepository.findById(cateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
         Pageable pageable = PageRequest.of(0, limit);
-        return articleRepository.findLimitNewestArticles(category.getId(), pageable);
+        return articleRepository.findLimitNewestArticlesByCate(category.getId(), pageable);
     }
 
     @Override
@@ -207,6 +207,12 @@ public class ArticleServiceImpl implements ArticleService {
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
         return articleRepository.findAllByTagAndActive(tag.getId(), true);
+    }
+
+    @Override
+    public List<Article> getTop3ArticleNewest() {
+        Pageable pageable = PageRequest.of(0, 3);
+        return articleRepository.findLimitNewestArticles(pageable);
     }
 
     @Override

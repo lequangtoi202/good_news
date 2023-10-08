@@ -22,6 +22,11 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
+    public int countAllUserActive() {
+        return statisticRepository.countAllUserActive();
+    }
+
+    @Override
     public ArticleView getMostViewsArticle() {
         return statisticRepository.mostViewsArticle();
     }

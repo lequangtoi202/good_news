@@ -16,6 +16,8 @@ import com.quangtoi.good_news.service.ImageService;
 import com.quangtoi.good_news.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -69,6 +71,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+    }
+
+    @Override
     public Boolean existsByUsername(String username) {
         return userRepository.existsByUsernameAndActive(username, true);
     }
@@ -115,9 +123,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateProfile(RegisterRequest req, MultipartFile avatar, User currentUser) {
-        if (userRepository.existsByEmailAndActive(req.getEmail(), true)) {
-            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Email is already exist");
-        }
         User userProfile = userRepository.findByUsernameAndActive(currentUser.getUsername(), true);
         if (userProfile == null) {
             throw new ResourceNotFoundException("User", "username", currentUser.getUsername());
@@ -162,19 +167,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getAllUsersIsActive() {
-        return userRepository.findAllByActive(true)
-                .stream()
-                .map(u -> mapper.map(u, UserResponse.class))
-                .collect(Collectors.toList());
+    public Page<UserResponse> getAllUsersIsActive(Pageable pageable) {
+        Page<User> userPage = userRepository.findAllByActive(true, pageable);
+        return userPage.map(user -> mapper.map(user, UserResponse.class));
     }
 
     @Override
-    public List<UserResponse> getAllUsersIsNotActive() {
-        return userRepository.findAllByActive(false)
-                .stream()
-                .map(u -> mapper.map(u, UserResponse.class))
-                .collect(Collectors.toList());
+    public Page<UserResponse> getAllUsersIsNotActive(Pageable pageable) {
+        Page<User> userPage = userRepository.findAllByActive(false, pageable);
+        return userPage.map(user -> mapper.map(user, UserResponse.class));
     }
 
     @Override
@@ -182,6 +183,15 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
         return mapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    public void softDeleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        user.setActive(false);
+        user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        userRepository.save(user);
     }
 
     @Override

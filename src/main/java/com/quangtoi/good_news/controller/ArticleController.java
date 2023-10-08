@@ -8,6 +8,7 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.pojo.UserArticle;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import com.quangtoi.good_news.utils.Utility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +32,7 @@ public class ArticleController {
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/api/v1/articles")
+    @GetMapping(Routing.ARTICLES)
     public ResponseEntity<?> getAllArticles(
             @RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
             @RequestParam("pageSize") int pageSize,
@@ -44,7 +45,12 @@ public class ArticleController {
         }
     }
 
-    @GetMapping("/api/v1/articles-status")
+    @GetMapping(Routing.TOP3_ARTICLES)
+    public ResponseEntity<?> getTop3Articles() {
+        return ResponseEntity.ok(articleService.getTop3ArticleNewest());
+    }
+
+    @GetMapping(Routing.ARTICLES_STATUS)
     public ResponseEntity<?> getAllArticlesPublish(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
                                                    @RequestParam(value = "type") String type) {
         if (!Utility.isValidArticleStatus(type)) {
@@ -57,7 +63,7 @@ public class ArticleController {
         }
     }
 
-    @GetMapping("/api/v1/categories/{cateId}/articles/newest")
+    @GetMapping(Routing.NEWEST_ARTICLES_BY_CATEGORY)
     public ResponseEntity<?> getAllTopNewestArticleArticles(@PathVariable("cateId") Long cateId,
                                                             @RequestParam(value = "limit", defaultValue = "1") int limit) {
 
@@ -65,27 +71,27 @@ public class ArticleController {
 
     }
 
-    @GetMapping("/api/v1/authors/{authorId}/articles")
+    @GetMapping(Routing.ARTICLES_BY_AUTHOR)
     public ResponseEntity<?> getAllArticlesByAuthor(@PathVariable("authorId") final Long authorId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByAuthor(authorId));
     }
 
-    @GetMapping("/api/v1/tags/{tagId}/articles")
+    @GetMapping(Routing.ARTICLES_BY_TAG)
     public ResponseEntity<?> getAllArticlesByTag(@PathVariable("tagId") final Long tagId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByTag(tagId));
     }
 
-    @GetMapping("/api/v1/categories/{cateId}/articles")
+    @GetMapping(Routing.ARTICLES_BY_CATEGORY)
     public ResponseEntity<?> getAllArticlesByCategory(@PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok().body(articleService.getAllArticlesByCategory(cateId));
     }
 
-    @GetMapping("/api/v1/articles/{articleId}")
+    @GetMapping(Routing.ARTICLE_BY_ID)
     public ResponseEntity<?> getAllArticlesById(@PathVariable("articleId") final Long articleId) {
         return ResponseEntity.ok().body(articleService.getArticleById(articleId));
     }
 
-    @PostMapping("/api/v1/articles")
+    @PostMapping(Routing.ARTICLES)
     public ResponseEntity<?> createArticle(@RequestPart("articleRequest") final String articleRequest, @RequestPart("image") MultipartFile image) throws JsonProcessingException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -107,7 +113,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/articles/{articleId}")
+    @PutMapping(Routing.ARTICLE_BY_ID)
     public ResponseEntity<?> updateArticle(@RequestBody final ArticleDto articleRequest, @PathVariable("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -128,7 +134,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/articles/{articleId}")
+    @DeleteMapping(Routing.ARTICLE_BY_ID)
     public ResponseEntity<?> deleteArticle(@PathVariable("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -149,7 +155,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/articles/add-tag")
+    @PostMapping(Routing.ADD_TAG_TO_ARTICLE)
     public ResponseEntity<?> addTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -174,7 +180,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/articles/delete-tag")
+    @DeleteMapping(Routing.DELETE_TAG_TO_ARTICLE)
     public ResponseEntity<?> deleteTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -199,7 +205,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/articles/{articleId}/update-status")
+    @PutMapping(Routing.UPDATE_STATUS_ARTICLE)
     public ResponseEntity<?> updateStatusArticle(@PathVariable("articleId") final Long articleId, @RequestParam("status") String status) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -223,7 +229,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/articles/{articleId}/user-acticles")
+    @PostMapping(Routing.ADD_READING_TURN)
     public ResponseEntity<?> addArticleRead(@PathVariable("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -245,7 +251,7 @@ public class ArticleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/crawl-articles-vnExpress")
+    @PostMapping(Routing.CRAWL_DATA_FROM_VNEXPRESS)
     @ResponseBody
     public ResponseEntity<?> crawlArticlesFromVnExpress(@RequestParam("category") String category) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

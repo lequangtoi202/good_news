@@ -10,6 +10,7 @@ import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.request.ThirdPartyRequest;
 import com.quangtoi.good_news.service.AuthService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +37,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/api/v1/auth/login")
+    @PostMapping(Routing.LOGIN)
     public ResponseEntity<?> login(@RequestBody @Valid final LoginRequest loginRequest){
         try {
             authenticate(loginRequest.getUsername(), loginRequest.getPassword());
@@ -54,7 +55,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    @PostMapping(value = "/api/v1/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = Routing.REGISTER, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> userRegister(
             @RequestParam("registerRequest") final String registerRequest,
             @RequestPart("avatar") final MultipartFile avatar) {

@@ -4,6 +4,7 @@ import com.quangtoi.good_news.pojo.Role;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.RoleService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ public class RoleController {
     private final RoleService roleService;
     private final UserService userService;
 
-    @GetMapping("/api/v1/roles")
+    @GetMapping(Routing.ROLES)
     public ResponseEntity<?> getAllRoles(
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber
@@ -33,17 +34,17 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getAllRoles());
     }
 
-    @GetMapping("/api/v1/roles/{roleId}")
+    @GetMapping(Routing.ROLE_BY_ID)
     public ResponseEntity<?> getRoleById(@PathVariable("roleId") final Long roleId) {
         return ResponseEntity.ok(roleService.getRoleById(roleId));
     }
 
-    @GetMapping("/api/v1/users/{userId}/roles")
+    @GetMapping(Routing.ROLE_OF_USER)
     public ResponseEntity<?> getAllRolesOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(roleService.getAllRoleOfUser(userId));
     }
 
-    @PostMapping("/api/v1/roles")
+    @PostMapping(Routing.ROLES)
     public ResponseEntity<?> addRole(@RequestBody final Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -59,7 +60,7 @@ public class RoleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/roles/{roleId}")
+    @PutMapping(Routing.ROLE_BY_ID)
     public ResponseEntity<?> updateRole(@PathVariable("roleId") final Long roleId, @RequestBody final Role role) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -75,7 +76,7 @@ public class RoleController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/roles/{roleId}")
+    @DeleteMapping(Routing.ROLE_BY_ID)
     public ResponseEntity<?> deleteRole(@PathVariable("roleId") final Long roleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

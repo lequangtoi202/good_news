@@ -10,6 +10,8 @@ public interface StatisticRepository {
 
     int countAllArticleActive();
 
+    int countAllUserActive();
+
     ArticleView mostViewsArticle();
 
     List<StatisticUserResponse> getStatisticUserInSystem();

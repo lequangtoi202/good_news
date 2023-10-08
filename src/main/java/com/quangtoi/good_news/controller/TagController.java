@@ -5,6 +5,7 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.TagService;
 import com.quangtoi.good_news.service.UserService;
 import com.quangtoi.good_news.service.UserTagService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,7 @@ public class TagController {
     private final UserTagService userTagService;
 
 
-    @GetMapping("/api/v1/tags")
+    @GetMapping(Routing.TAGS)
     public ResponseEntity<?> getAllTags(
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber
@@ -36,17 +37,17 @@ public class TagController {
         return ResponseEntity.ok(tagService.getAllTags());
     }
 
-    @GetMapping("/api/v1/articles/{articleId}/tags")
+    @GetMapping(Routing.TAGS_OF_ARTICLE)
     public ResponseEntity<?> getAllTagsOfArticle(@PathVariable("articleId") Long articleId) {
         return ResponseEntity.ok(tagService.getAllTagsOfArticle(articleId));
     }
 
-    @GetMapping("/api/v1/tags/{tagId}")
+    @GetMapping(Routing.TAG_BY_ID)
     public ResponseEntity<?> getTagById(@PathVariable("tagId") final Long tagId) {
         return ResponseEntity.ok(tagService.getTagById(tagId));
     }
 
-    @PostMapping("/api/v1/tags")
+    @PostMapping(Routing.TAGS)
     public ResponseEntity<?> addTag(@RequestBody final Tag tag) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -62,7 +63,7 @@ public class TagController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/tags/{tagId}")
+    @PutMapping(Routing.TAG_BY_ID)
     public ResponseEntity<?> updateTag(@PathVariable("tagId") final Long tagId, @RequestBody final Tag tag) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -78,7 +79,7 @@ public class TagController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/tags/{tagId}")
+    @DeleteMapping(Routing.TAG_BY_ID)
     public ResponseEntity<?> deleteTag(@PathVariable("tagId") final Long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -95,7 +96,7 @@ public class TagController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/tags/{tagId}/follow")
+    @PostMapping(Routing.FOLLOW_TAG)
     public ResponseEntity<?> toggleFollowTag(@PathVariable("tagId") long tagId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -111,7 +112,7 @@ public class TagController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/api/v1/tags/{tagId}/follow-status")
+    @GetMapping(Routing.FOLLOW_TAG_STATUS)
     public ResponseEntity<?> getFollowStatus(@PathVariable("tagId") long tagId) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

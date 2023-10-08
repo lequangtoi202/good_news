@@ -109,6 +109,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/statistic/count-all-articles").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/v1/statistic/most-views-article").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/v1/statistic/article-category").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/v1/statistic/count-all-users").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/v1/statistic/user").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                 ).exceptionHandling(e ->

@@ -4,6 +4,7 @@ import com.quangtoi.good_news.pojo.Bookmark;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.BookmarkService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +23,12 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
     private final UserService userService;
 
-    @GetMapping("/api/v1/users/{userId}/bookmarks")
+    @GetMapping(Routing.BOOKMARK_OF_USER)
     public ResponseEntity<?> getAllBookmarksOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(userId));
     }
 
-    @GetMapping("/api/v1/bookmarks")
+    @GetMapping(Routing.BOOKMARKS)
     public ResponseEntity<?> getAllBookmarks(
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "pageNumber") Integer pageNumber) {
@@ -35,7 +36,7 @@ public class BookmarkController {
         return ResponseEntity.ok(bookmarkService.getAllBookmarks(pageable));
     }
 
-    @GetMapping("/api/v1/bookmarks/me")
+    @GetMapping(Routing.BOOKMARK_OF_ME)
     public ResponseEntity<?> getAllBookmarksOfMe() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -56,7 +57,7 @@ public class BookmarkController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/bookmarks")
+    @PostMapping(Routing.BOOKMARKS)
     public ResponseEntity<?> addArticleToBookmark(@RequestParam("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -81,7 +82,7 @@ public class BookmarkController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/bookmarks")
+    @DeleteMapping(Routing.BOOKMARKS)
     public ResponseEntity<?> deleteArticleFromBookmark(@RequestParam("articleId") final Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -102,7 +103,7 @@ public class BookmarkController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @DeleteMapping("/api/v1/bookmarks/{bookmarkId}")
+    @DeleteMapping(Routing.BOOKMARK_BY_ID)
     public ResponseEntity<?> deleteBookmark(@PathVariable Long bookmarkId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

@@ -1,6 +1,7 @@
 package com.quangtoi.good_news.controller;
 
 import com.quangtoi.good_news.service.SearchService;
+import com.quangtoi.good_news.utils.Routing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,7 +15,7 @@ public class SearchController {
     @Autowired
     private SearchService searchService;
 
-    @GetMapping("/api/v1/search")
+    @GetMapping(Routing.SEARCH)
     public ResponseEntity<?> getSearchResult(
             @RequestParam("kw") String kw,
             @RequestParam("pageSize") int pageSize,

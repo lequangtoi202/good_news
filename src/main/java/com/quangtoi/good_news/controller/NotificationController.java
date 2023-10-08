@@ -4,6 +4,7 @@ import com.quangtoi.good_news.pojo.Notification;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.service.NotificationService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,27 +21,27 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final UserService userService;
 
-    @GetMapping("/api/v1/notifications")
+    @GetMapping(Routing.NOTIFICATIONS)
     public ResponseEntity<?> getAllNotifications() {
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
-    @GetMapping("/api/v1/notifications/{notifiId}")
+    @GetMapping(Routing.NOTIFICATION_BY_ID)
     public ResponseEntity<?> getNotificationById(@PathVariable("notifiId") final Long notifiId) {
         return ResponseEntity.ok(notificationService.getNotificationById(notifiId));
     }
 
-    @GetMapping("/api/v1/users/{userId}/notifications")
+    @GetMapping(Routing.NOTIFICATION_BY_USER)
     public ResponseEntity<?> getNotificationOfUser(@PathVariable("userId") final Long userId) {
         return ResponseEntity.ok(notificationService.getAllNotificationsByUserId(userId));
     }
 
-    @PostMapping("/api/v1/users/{userId}/notifications")
+    @PostMapping(Routing.NOTIFICATION_BY_USER)
     public ResponseEntity<?> addNewNotification(@PathVariable("userId") final Long userId, @RequestBody final Notification notification) {
         return ResponseEntity.ok(notificationService.addNewNotification(userId, notification));
     }
 
-    @DeleteMapping("/api/v1/notifications/{notifiId}")
+    @DeleteMapping(Routing.NOTIFICATION_BY_ID)
     public ResponseEntity<?> deleteNotification(@PathVariable("notifiId") final Long notifiId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

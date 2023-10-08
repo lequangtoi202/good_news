@@ -10,6 +10,8 @@ public interface StatisticService {
 
     int countAllArticleActive();
 
+    int countAllUserActive();
+
     ArticleView getMostViewsArticle();
 
     List<ArticleCategoryResponse> statisticArticleCategory();

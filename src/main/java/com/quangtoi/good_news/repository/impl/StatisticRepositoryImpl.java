@@ -30,6 +30,14 @@ public class StatisticRepositoryImpl implements StatisticRepository {
     }
 
     @Override
+    public int countAllUserActive() {
+        String jpql = "SELECT COUNT(u) FROM User u where u.active=true";
+        Query query = entityManager.createQuery(jpql);
+        Long value = (Long) query.getSingleResult();
+        return value.intValue();
+    }
+
+    @Override
     public ArticleView mostViewsArticle() {
         String jpql = "SELECT new com.quangtoi.good_news.dto.ArticleView(a, count(ua)) from Article a join UserArticle ua on ua.articleId=a.id " +
                 "group by a order by COUNT(ua) DESC";

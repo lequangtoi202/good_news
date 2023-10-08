@@ -36,13 +36,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category updateCategory(Category category, Long cateId) {
+    public Category updateCategory(Category category, Long cateId, MultipartFile image) {
         Category categoryUpdate = categoryRepository.findById(cateId)
                         .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
         categoryUpdate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         categoryUpdate.setDescription(category.getDescription());
         categoryUpdate.setActive(category.isActive());
         categoryUpdate.setName(category.getName());
+        categoryUpdate.setImage(image == null ? null : imageService.uploadImage(image));
         return categoryRepository.save(categoryUpdate);
     }
 

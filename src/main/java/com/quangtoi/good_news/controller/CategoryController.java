@@ -7,6 +7,7 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.CategoryService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public class CategoryController {
     private final CategoryService categoryService;
     private final UserService userService;
 
-    @GetMapping("/api/v1/categories")
+    @GetMapping(Routing.CATEGORIES)
     public ResponseEntity<?> getAllCategories(
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber) {
@@ -38,12 +39,12 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/api/v1/categories/{cateId}")
+    @GetMapping(Routing.CATEGORY_BY_ID)
     public ResponseEntity<?> getCategoryById(@PathVariable("cateId") final Long cateId) {
         return ResponseEntity.ok(categoryService.getCategoryById(cateId));
     }
 
-    @PostMapping(value = "/api/v1/categories", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = Routing.CATEGORIES, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addCategory(@RequestParam("category") final String category,
                                          @RequestPart("image") final MultipartFile image) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -51,12 +52,28 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.addCategory(req, image));
     }
 
-    @PutMapping("/api/v1/categories/{cateId}")
-    public ResponseEntity<?> updateCategory(@RequestBody final Category category, @PathVariable("cateId") final Long cateId) {
-        return ResponseEntity.ok(categoryService.updateCategory(category, cateId));
+    @PutMapping(value = Routing.CATEGORY_BY_ID, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateCategory(@PathVariable("cateId") final Long cateId,
+                                            @RequestParam("categoryReq") final String categoryReq,
+                                            @RequestPart("image") final MultipartFile image) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Category category = objectMapper.readValue(categoryReq, Category.class);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User currentUser = userService.getByUsername(username);
+                if (currentUser != null) {
+                    return ResponseEntity.ok(categoryService.updateCategory(category, cateId, image));
+                }
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
     }
 
-    @DeleteMapping("/api/v1/categories/{cateId}")
+    @DeleteMapping(Routing.CATEGORY_BY_ID)
     public ResponseEntity<?> deleteCategory(@PathVariable("cateId") final Long cateId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {

@@ -21,14 +21,14 @@ spring:
   #liquibase
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
-    url: jdbc:mysql://mysql:3308/good_news
-    password: lqt25092002
-    user: root
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/good_news
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:lqt25092002}
     enabled: true
   datasource:
-    url: jdbc:mysql://mysql:3308/good_news
-    username: root
-    password: lqt25092002
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/good_news
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:lqt25092002}
     driver-class-name: com.mysql.cj.jdbc.Driver
   #Oauth2
   security:

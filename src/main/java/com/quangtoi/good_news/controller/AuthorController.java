@@ -6,6 +6,7 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.AuthorRequest;
 import com.quangtoi.good_news.service.AuthorService;
 import com.quangtoi.good_news.service.UserService;
+import com.quangtoi.good_news.utils.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public class AuthorController {
     private final AuthorService authorService;
     private final UserService userService;
 
-    @PostMapping("/api/v1/authors")
+    @PostMapping(Routing.AUTHORS)
     public ResponseEntity<?> registerAuthor(@RequestBody final AuthorRequest authorRequest) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -47,7 +48,7 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/authors")
+    @PutMapping(Routing.AUTHORS)
     public ResponseEntity<?> updateAuthor(@RequestBody final AuthorRequest authorRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -64,7 +65,7 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PutMapping("/api/v1/authors/{authorId}")
+    @PutMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> updateAuthorById(@RequestBody final AuthorRequest authorRequest, @PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -81,7 +82,7 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/api/v1/authors/{authorId}/confirm")
+    @PostMapping(Routing.CONFIRM_AUTHOR)
     public ResponseEntity<?> confirmAuthor(@PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -102,7 +103,7 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/api/v1/authors")
+    @GetMapping(Routing.AUTHORS)
     public ResponseEntity<?> getAllAuthors(
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber
@@ -115,7 +116,7 @@ public class AuthorController {
         return ResponseEntity.ok(authorResponse);
     }
 
-    @DeleteMapping("/api/v1/authors/{authorId}")
+    @DeleteMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> deleteAuthorById(@PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -136,7 +137,7 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/api/v1/authors/{authorId}")
+    @GetMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> getAuthorById(@PathVariable("authorId") final Long authorId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -156,13 +157,13 @@ public class AuthorController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/api/v1/users/{userId}/authors")
+    @GetMapping(Routing.AUTHOR_BY_USERID)
     public ResponseEntity<?> getAuthorByUserId(@PathVariable("userId") final Long userId) {
         Authors author = authorService.getAuthorsByUserId(userId);
         return ResponseEntity.ok(author);
     }
 
-    @GetMapping("/api/v1/authors/me")
+    @GetMapping(Routing.AUTHOR_ME)
     public ResponseEntity<?> getAuthorMe() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -181,6 +182,5 @@ public class AuthorController {
             }
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
     }
 }

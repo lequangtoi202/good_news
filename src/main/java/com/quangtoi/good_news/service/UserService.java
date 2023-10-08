@@ -4,6 +4,8 @@ import com.quangtoi.good_news.dto.UserResponse;
 import com.quangtoi.good_news.pojo.RegisterNotification;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +15,8 @@ public interface UserService extends UserDetailsService {
     User getByUsername(String username);
 
     User getByEmail(String email);
+
+    User findUserById(Long userId);
 
     Boolean existsByUsername(String username);
 
@@ -30,11 +34,13 @@ public interface UserService extends UserDetailsService {
 
     UserResponse getMyAccount(String username);
 
-    List<UserResponse> getAllUsersIsActive();
+    Page<UserResponse> getAllUsersIsActive(Pageable pageable);
 
-    List<UserResponse> getAllUsersIsNotActive();
+    Page<UserResponse> getAllUsersIsNotActive(Pageable pageable);
 
     UserResponse getUserById(Long userId);
+
+    void softDeleteUser(Long userId);
 
     RegisterNotification registerReceiveNotification(RegisterNotification registerNotification);
 
