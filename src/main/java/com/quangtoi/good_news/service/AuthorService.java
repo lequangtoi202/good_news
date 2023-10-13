@@ -23,6 +23,7 @@ public interface AuthorService {
     Page<Authors> getAllAuthorsPageable(Pageable pageable);
 
     Authors getAuthorsByUserId(Long userId);
+
     Authors getAuthorsById(Long authorId);
 
     void deleteAuthorById(User currentUser, Long authorId);

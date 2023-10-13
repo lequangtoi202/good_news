@@ -3,6 +3,13 @@ databaseChangeLog:
       id: 20230927000001-1
       author: toi.lequang
       changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                columnExists:
+                  schemaName: good_news
+                  tableName: category
+                  columnName: image
         - addColumn:
             schemaName: good_news
             tableName: category

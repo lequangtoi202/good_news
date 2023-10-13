@@ -4,6 +4,8 @@ server:
     context-path: /
 #datasource
 spring:
+#  profiles:
+#    active: dev
   #mail
   mail:
     host: smtp.gmail.com

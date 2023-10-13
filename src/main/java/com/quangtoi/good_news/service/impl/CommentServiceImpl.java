@@ -82,11 +82,13 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
         List<Role> roles = roleRepository.getAllByUser(userId);
         boolean hasRoleAdmin = roles.stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
-        if (!hasRoleAdmin) {
-            throw new BadCredentialsException("You do not have role to update this comment");
+        if (hasRoleAdmin || comment.getUserId() == userId) {
+            comment.setActive(false);
+            commentRepository.save(comment);
+        } else {
+            throw new BadCredentialsException("You do not have role to delete this comment");
         }
-        comment.setActive(false);
-        commentRepository.save(comment);
+
     }
 
     @Override

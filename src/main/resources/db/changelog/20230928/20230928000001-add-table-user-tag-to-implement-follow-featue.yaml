@@ -3,6 +3,11 @@ databaseChangeLog:
       id: 20230928000001-1
       author: toi.lequang
       changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: user_tag
         - createTable:
             schemaName: good_news
             tableName: user_tag

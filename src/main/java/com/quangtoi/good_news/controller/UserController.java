@@ -111,12 +111,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping(Routing.FORGOT_PASSWORD)
-    public ResponseEntity<String> processForgotPassword(HttpServletRequest request, @RequestParam final String email) {
+    @GetMapping(Routing.FORGOT_PASSWORD)
+    public ResponseEntity<String> processForgotPassword(@RequestParam final String email) {
         String token = RandomString.make(45);
         try {
             userService.updateResetPassword(token, email);
-            String resetPasswordLink = Utility.getSiteURL(request) + "/api/v1/accounts/reset-password?token=" + token;
+            String resetPasswordLink = "http://localhost:3000/reset-password?token=" + token;
 
             sendMail(email, resetPasswordLink);
             return ResponseEntity.ok().body(resetPasswordLink);

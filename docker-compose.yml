@@ -1,17 +1,13 @@
-version: "3.8"
-
+version: "3"
 services:
-  mysql:
-    container_name: mysqldb
-    image: mysql
+  springboot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./:/var/www/app
     ports:
-      - "3308:3306"
+      - "8083:8083"
     environment:
-      MYSQL_ROOT_PASSWORD: lqt25092002
-      MYSQL_DATABASE: good_news
-    networks:
-      springboot-mysql-net:
-
-networks:
-  springboot-mysql-net:
-    driver: bridge
+      SPRING_PROFILES_ACTIVE: dev
