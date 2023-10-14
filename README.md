@@ -36,4 +36,4 @@ Chạy ***database của AWS RDS***
 3. Mở MySQL Workbench(recommended) hoặc những hệ quản trị cơ sở dữ liệu có hỗ trợ MySQL.
 4. Tạo 1 database tên là **good_news**. Import file ***dump_data.spl*** vào database
 5. Chạy lại server và hoàn tất.
-[Link Api cloud](http://good-news-env.eba-radvhidw.ap-southeast-2.elasticbeanstalk.com/api/v1/)
+[Link Api cloud](http://good-news-env.eba-radvhidw.ap-southeast-2.elasticbeanstalk.com/swagger-ui/index.html)
