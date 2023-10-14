@@ -13,7 +13,7 @@
 4. Nhấn vào icon run trên giao diện của IntelliJ IDE :arrow_forward: Run
 5. Hoàn tất
 
-##Hướng dẫn sử dụng database local hoặc AWS RDS
+## Hướng dẫn sử dụng database local hoặc AWS RDS
 Chạy ***database local***:
 1. Mở file **application.yml**
 2. Tìm và command 
