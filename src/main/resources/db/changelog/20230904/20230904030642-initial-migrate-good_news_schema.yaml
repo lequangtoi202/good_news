@@ -3,10 +3,541 @@ databaseChangeLog:
       id: 20230904030642-1
       author: toi.lequang
       changes:
-          - sqlFile:
-                endDelimiter: //
-                splitStatements: true
-                path: db/data/20230904/dum_data.sql
-                stripComments: true
-      comment: Initial good_news schema
-      dbms: postgresql
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: user
+        - createTable:
+            tableName: user
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: varchar(45)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: avatar
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: tinyint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: full_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: date_of_birth
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: address
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: email
+                  type: varchar(45)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: password_reset_token
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 20230904030642-2
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: category
+        - createTable:
+            tableName: category
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(45)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_active
+                  type: tinyint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 20230904030642-3
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: article
+        - createTable:
+            tableName: article
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: varchar(150)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: content
+                  type: longtext
+                  constraints:
+                    nullable: true
+              - column:
+                  name: image
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: active
+                  type: tinyint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: source
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: category_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authors_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_news_authors1
+                  baseColumnNames: authors_id
+                  baseTableName: article
+                  referencedColumnNames: id
+                  referencedTableName: authors
+              - foreignKey:
+                  name: fk_news_category1
+                  baseColumnNames: category_id
+                  baseTableName: article
+                  referencedColumnNames: id
+                  referencedTableName: category
+
+  - changeSet:
+      id: 20230904030642-4
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: bookmark
+        - createTable:
+            tableName: bookmark
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: article_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_bookmark_user1
+                  baseColumnNames: user_id
+                  baseTableName: bookmark
+                  referencedColumnNames: id
+                  referencedTableName: user
+              - foreignKey:
+                  name: fk_bookmark_artical1
+                  baseColumnNames: article_id
+                  baseTableName: bookmark
+                  referencedColumnNames: id
+                  referencedTableName: article
+
+  - changeSet:
+      id: 20230904030642-5
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: comment
+        - createTable:
+            tableName: comment
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: active
+                  type: tinyint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: parent_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: article_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_comment_article1
+                  baseColumnNames: article_id
+                  baseTableName: comment
+                  referencedColumnNames: id
+                  referencedTableName: article
+              - foreignKey:
+                  name: fk_comment_comment1
+                  baseColumnNames: parent_id
+                  baseTableName: comment
+                  referencedColumnNames: id
+                  referencedTableName: comment
+              - foreignKey:
+                  name: fk_comment_user1
+                  baseColumnNames: user_id
+                  baseTableName: comment
+                  referencedColumnNames: id
+                  referencedTableName: user
+
+  - changeSet:
+      id: 20230904030642-6
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: notification
+        - createTable:
+            tableName: notification
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: content
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: type
+                  type: varchar(45)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_sent
+                  type: tinyint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sent_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 20230904030642-7
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: role
+        - createTable:
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(20)
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 20230904030642-8
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: tag
+        - createTable:
+            tableName: tag
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(45)
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: 20230904030642-9
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: user_notification
+        - createTable:
+            tableName: user_notification
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: notification_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_user_notification_notification1
+                  baseColumnNames: notification_id
+                  baseTableName: user_notification
+                  referencedColumnNames: id
+                  referencedTableName: notification
+                  onDelete: CASCADE
+                  onUpdate: CASCADE
+              - foreignKey:
+                  name: fk_user_notification_user1
+                  baseColumnNames: user_id
+                  baseTableName: user_notification
+                  referencedColumnNames: id
+                  referencedTableName: user
+                  onDelete: CASCADE
+                  onUpdate: CASCADE
+
+  - changeSet:
+      id: 20230904030642-10
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: user_role
+        - createTable:
+            tableName: user_role
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_user_role_user
+                  baseColumnNames: user_id
+                  baseTableName: user_role
+                  referencedColumnNames: id
+                  referencedTableName: user
+              - foreignKey:
+                  name: fk_user_role_role1
+                  baseColumnNames: role_id
+                  baseTableName: user_role
+                  referencedColumnNames: id
+                  referencedTableName: role
+                  onDelete: CASCADE
+                  onUpdate: CASCADE
+
+  - changeSet:
+      id: 20230904030642-11
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                tableExists:
+                  tableName: article_tag
+        - createTable:
+            tableName: article_tag
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: tag_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: article_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+            constraints:
+              - foreignKey:
+                  name: fk_news_tag_tag1
+                  baseColumnNames: tag_id
+                  baseTableName: article_tag
+                  referencedColumnNames: id
+                  referencedTableName: tag
+              - foreignKey:
+                  name: fk_news_tag_artical1
+                  baseColumnNames: article_id
+                  baseTableName: article_tag
+                  referencedColumnNames: id
+                  referencedTableName: article

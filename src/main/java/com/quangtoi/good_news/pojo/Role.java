@@ -20,4 +20,8 @@ public class Role implements Serializable {
     @Basic
     @Column(name = "name", length = 20)
     private String name;
+
+    public Role(String role) {
+        this.name = role;
+    }
 }

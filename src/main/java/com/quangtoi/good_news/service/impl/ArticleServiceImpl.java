@@ -50,8 +50,6 @@ public class ArticleServiceImpl implements ArticleService {
     private TagRepository tagRepository;
     @Autowired
     private UserArticleRepository userArticleRepository;
-    @Autowired
-    private ModelMapper mapper;
 
     @Override
     public Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image) {

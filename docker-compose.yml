@@ -10,4 +10,21 @@ services:
     ports:
       - "8083:8083"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: local
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: lqt25092002
+      MYSQL_DB: good_news
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    volumes:
+      - good-news-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: lqt25092002
+      MYSQL_DATABASE: good_news
+    ports:
+      - "3307:3306"
+volumes:
+  good-news-data:
