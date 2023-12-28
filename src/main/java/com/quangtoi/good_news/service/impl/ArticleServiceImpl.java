@@ -7,7 +7,8 @@ import com.quangtoi.good_news.pojo.*;
 import com.quangtoi.good_news.repository.*;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.ImageService;
-import com.quangtoi.good_news.utils.ArticleStatus;
+import com.quangtoi.good_news.utils.EArticleStatus;
+import com.quangtoi.good_news.utils.ERoleName;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +50,8 @@ public class ArticleServiceImpl implements ArticleService {
     private TagRepository tagRepository;
     @Autowired
     private UserArticleRepository userArticleRepository;
+    @Autowired
+    private ModelMapper mapper;
 
     @Override
     public Article addArticle(ArticleDto articleDto, User currentUser, MultipartFile image) {
@@ -61,23 +63,25 @@ public class ArticleServiceImpl implements ArticleService {
         }
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_AUTHOR"));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_AUTHOR));
         if (hasRoleAdminOrAuthor) {
+            Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             Article article = Article.builder()
                     .active(true)
                     .authors(authors)
                     .category(category)
                     .content(articleDto.getContent())
-                    .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                    .createdAt(now)
                     .source(articleDto.getSource())
-                    .status(ArticleStatus.DRAFT.toString())
+                    .status(EArticleStatus.DRAFT.toString())
                     .title(articleDto.getTitle())
-                    .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
+                    .updatedAt(now)
                     .image(image == null ? null : imageService.uploadImage(image))
                     .build();
             return articleRepository.save(article);
+        } else {
+            throw new BadCredentialsException("You don not have permission to add new article");
         }
-        throw new BadCredentialsException("You don not have permission to add new article");
     }
 
     @Override
@@ -88,20 +92,9 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_AUTHOR"));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_AUTHOR));
         if (hasRoleAdminOrAuthor) {
-            if (articleDto.getTitle() != null) {
-                article.setTitle(articleDto.getTitle());
-            }
-            if (articleDto.getContent() != null) {
-                article.setContent(articleDto.getContent());
-            }
-            if (articleDto.getSource() != null) {
-                article.setSource(articleDto.getSource());
-            }
-            if (articleDto.getStatus() != null) {
-                article.setStatus(articleDto.getStatus());
-            }
+            mapper.map(articleDto, article);
             article.setCategory(category);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             return articleRepository.save(article);
@@ -115,7 +108,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_APPROVER"));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_APPROVE));
         if (hasRoleAdminOrAuthor) {
             article.setStatus(status);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -130,7 +123,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_AUTHOR"));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_APPROVE));
         if (hasRoleAdminOrAuthor) {
             article.setActive(false);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -246,7 +239,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void crawlData(String category, User user) throws IOException {
         List<Role> roles = roleRepository.getAllByUser(user.getId());
         boolean hasRoleAdmin = roles.stream()
-                .anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN));
         if (hasRoleAdmin) {
             Document doc = Jsoup.connect("https://vnexpress.net/" + category).get();
             List<ArticleData> articleDataList = new ArrayList<>();
@@ -326,7 +319,7 @@ public class ArticleServiceImpl implements ArticleService {
                         .title(a.getTitle())
                         .content(a.getContent())
                         .source(a.getSource())
-                        .status(String.valueOf(ArticleStatus.PUBLISHED))
+                        .status(String.valueOf(EArticleStatus.PUBLISHED))
                         .active(true)
                         .image(a.getImage())
                         .category(categorySave)

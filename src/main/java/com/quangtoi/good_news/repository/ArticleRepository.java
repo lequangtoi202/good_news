@@ -3,7 +3,6 @@ package com.quangtoi.good_news.repository;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.Authors;
 import com.quangtoi.good_news.pojo.Category;
-import com.quangtoi.good_news.utils.ArticleStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

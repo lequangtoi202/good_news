@@ -9,7 +9,7 @@ public class Utility {
     }
 
     public static boolean isValidArticleStatus(String input) {
-        for (ArticleStatus status : ArticleStatus.values()) {
+        for (EArticleStatus status : EArticleStatus.values()) {
             if (status.name().equalsIgnoreCase(input)) {
                 return true;
             }
