@@ -34,9 +34,7 @@ public interface UserService extends UserDetailsService {
 
     UserResponse getMyAccount(String username);
 
-    Page<UserResponse> getAllUsersIsActive(Pageable pageable);
-
-    Page<UserResponse> getAllUsersIsNotActive(Pageable pageable);
+    Page<UserResponse> getAllUsers(boolean active, Pageable pageable);
 
     UserResponse getUserById(Long userId);
 

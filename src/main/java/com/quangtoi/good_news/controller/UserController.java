@@ -8,7 +8,6 @@ import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
 import com.quangtoi.good_news.service.UserService;
 import com.quangtoi.good_news.utils.Routing;
-import com.quangtoi.good_news.utils.Utility;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,11 +41,7 @@ public class UserController {
             @RequestParam("pageSize") int pageSize,
             @RequestParam("pageNumber") int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        if (active) {
-            return ResponseEntity.ok(userService.getAllUsersIsActive(pageable));
-        } else {
-            return ResponseEntity.ok(userService.getAllUsersIsNotActive(pageable));
-        }
+        return ResponseEntity.ok(userService.getAllUsers(active, pageable));
     }
 
     @GetMapping(Routing.USER_BY_ID)

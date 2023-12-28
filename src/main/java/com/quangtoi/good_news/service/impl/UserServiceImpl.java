@@ -52,16 +52,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsernameAndActive(username, true);
+        User user = this.getByUsername(username);
         List<Role> roles = roleRepository.getAllByUser(user.getId());
-        Set<GrantedAuthority> authorities = roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toSet());
+        Set<GrantedAuthority> authorities = roles.stream()
+                .map(Role::getName)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 
     @Override
     public User getByUsername(String username) {
-        return userRepository.findByUsernameAndActive(username, true);
+        User user = userRepository.findByUsernameAndActive(username, true);
+        if (user == null) {
+            throw new ResourceNotFoundException("User", "username", username);
+        }
+        return user;
     }
 
     @Override
@@ -81,29 +88,30 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByUsernameAndActive(username, true);
     }
 
+    public Boolean existsByEmail(String email) {
+        return userRepository.existsByEmailAndActive(email, true);
+    }
+
     @Override
     public UserResponse register(RegisterRequest req, MultipartFile avatar) {
-        if (userRepository.existsByUsernameAndActive(req.getUsername(), true)) {
-            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Username is already exist");
+        if (this.existsByUsername(req.getUsername())) {
+            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Username has already exist");
         }
-        if (userRepository.existsByEmailAndActive(req.getEmail(), true)) {
-            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Email is already exist");
+        if (this.existsByEmail(req.getEmail())) {
+            throw new GoodNewsApiException(HttpStatus.BAD_REQUEST, "Email has already exist");
         }
-        User user = User.builder().
-                username(req.getUsername())
+        User user = User.builder()
+                .username(req.getUsername())
                 .address(req.getAddress())
                 .dateOfBirth(req.getDateOfBirth())
                 .email(req.getEmail())
                 .fullName(req.getFullName())
                 .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
+                .password(req.getConfirmPassword().equals(req.getPassword()) ? encoder.encode(req.getPassword()) : null)
+                .avatar(avatar == null ? null : imageService.uploadImage(avatar))
+                .active(true)
                 .build();
-
-        if (req.getConfirmPassword().equals(req.getPassword())) {
-            user.setPassword(encoder.encode(req.getPassword()));
-        }
-        user.setAvatar(avatar == null ? null : imageService.uploadImage(avatar));
-        user.setActive(true);
         User userSaved = userRepository.save(user);
         Role role = roleRepository.getByName("ROLE_USER");
         if (role == null) {
@@ -148,8 +156,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateResetPassword(String token, String email) {
-        User user = userRepository.findByEmailAndActive(email, true)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        User user = this.getByEmail(email);
         user.setPasswordResetToken(token);
         user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
         userRepository.save(user);
@@ -163,18 +170,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getMyAccount(String username) {
-        return mapper.map(userRepository.findByUsernameAndActive(username, true), UserResponse.class);
+        return mapper.map(this.getByUsername(username), UserResponse.class);
     }
 
     @Override
-    public Page<UserResponse> getAllUsersIsActive(Pageable pageable) {
-        Page<User> userPage = userRepository.findAllByActive(true, pageable);
-        return userPage.map(user -> mapper.map(user, UserResponse.class));
-    }
-
-    @Override
-    public Page<UserResponse> getAllUsersIsNotActive(Pageable pageable) {
-        Page<User> userPage = userRepository.findAllByActive(false, pageable);
+    public Page<UserResponse> getAllUsers(boolean active, Pageable pageable) {
+        Page<User> userPage = userRepository.findAllByActive(active, pageable);
         return userPage.map(user -> mapper.map(user, UserResponse.class));
     }
 
