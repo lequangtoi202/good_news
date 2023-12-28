@@ -2,7 +2,7 @@ package com.quangtoi.good_news.service.impl;
 
 import com.quangtoi.good_news.dto.JwtResponse;
 import com.quangtoi.good_news.dto.UserResponse;
-import com.quangtoi.good_news.dto.enumeration.ProviderType;
+import com.quangtoi.good_news.dto.enumeration.EProviderType;
 import com.quangtoi.good_news.exception.GoodNewsApiException;
 import com.quangtoi.good_news.pojo.User;
 import com.quangtoi.good_news.request.RegisterRequest;
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
                     .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                     .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
                     .fullName(fullName)
-                    .provider(String.valueOf(ProviderType.GOOGLE))
+                    .provider(String.valueOf(EProviderType.GOOGLE))
                     .avatar(avatar).build();
             userService.saveUser(newUser);
         }

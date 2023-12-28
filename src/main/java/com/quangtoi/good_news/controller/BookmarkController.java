@@ -38,89 +38,36 @@ public class BookmarkController {
 
     @GetMapping(Routing.BOOKMARK_OF_ME)
     public ResponseEntity<?> getAllBookmarksOfMe() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(currentUser.getId()));
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(bookmarkService.getAllBookmarksOfUser(currentUser.getId()));
     }
 
     @PostMapping(Routing.BOOKMARKS)
     public ResponseEntity<?> addArticleToBookmark(@RequestParam("articleId") final Long articleId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        Bookmark bookmark = bookmarkService.addArticleToBookmark(articleId, currentUser);
-                        if (bookmark != null) {
-                            return ResponseEntity.ok(bookmark);
-                        } else {
-                            return ResponseEntity.noContent().build();
-                        }
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        Bookmark bookmark = bookmarkService.addArticleToBookmark(articleId, currentUser);
+        if (bookmark != null) {
+            return ResponseEntity.ok(bookmark);
+        } else {
+            return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @DeleteMapping(Routing.BOOKMARKS)
     public ResponseEntity<?> deleteArticleFromBookmark(@RequestParam("articleId") final Long articleId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        bookmarkService.deleteArticleFromBookmark(articleId, currentUser);
-                        return ResponseEntity.ok("Successfully");
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        bookmarkService.deleteArticleFromBookmark(articleId, currentUser);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(Routing.BOOKMARK_BY_ID)
     public ResponseEntity<?> deleteBookmark(@PathVariable Long bookmarkId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        bookmarkService.deleteBookmark(bookmarkId, currentUser);
-                        return ResponseEntity.ok("Successfully");
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        bookmarkService.deleteBookmark(bookmarkId, currentUser);
+        return ResponseEntity.noContent().build();
     }
 }

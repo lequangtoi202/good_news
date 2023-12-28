@@ -1,5 +1,7 @@
 package com.quangtoi.good_news.service.impl;
 
+import com.quangtoi.good_news.dto.enumeration.ERoleName;
+import com.quangtoi.good_news.exception.ForbiddenException;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.Bookmark;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BookmarkServiceImpl implements BookmarkService {
@@ -62,9 +66,12 @@ public class BookmarkServiceImpl implements BookmarkService {
         Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bookmark", "id", bookmarkId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
-        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (!hasRoleAdmin) {
-            throw new BadCredentialsException("You do not have permission");
+            throw new ForbiddenException("Insufficient privilege");
         }
         bookmarkRepository.delete(bookmark);
     }

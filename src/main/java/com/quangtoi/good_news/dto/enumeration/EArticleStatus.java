@@ -1,4 +1,4 @@
-package com.quangtoi.good_news.utils;
+package com.quangtoi.good_news.dto.enumeration;
 
 public enum EArticleStatus {
     DRAFT,

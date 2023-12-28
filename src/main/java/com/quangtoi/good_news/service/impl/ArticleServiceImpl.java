@@ -2,13 +2,14 @@ package com.quangtoi.good_news.service.impl;
 
 import com.quangtoi.good_news.dto.ArticleData;
 import com.quangtoi.good_news.dto.ArticleDto;
+import com.quangtoi.good_news.exception.ForbiddenException;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.*;
 import com.quangtoi.good_news.repository.*;
 import com.quangtoi.good_news.service.ArticleService;
 import com.quangtoi.good_news.service.ImageService;
-import com.quangtoi.good_news.utils.EArticleStatus;
-import com.quangtoi.good_news.utils.ERoleName;
+import com.quangtoi.good_news.dto.enumeration.EArticleStatus;
+import com.quangtoi.good_news.dto.enumeration.ERoleName;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,6 +29,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,9 +64,11 @@ public class ArticleServiceImpl implements ArticleService {
         if (authors == null) {
             throw new ResourceNotFoundException("Author", "userId", currentUser.getId());
         }
+        Set<String> allowedRoles = Set.of(ERoleName.ROLE_ADMIN.toString(), ERoleName.ROLE_AUTHOR.toString());
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_AUTHOR));
+                .map(Role::getName)
+                .anyMatch(allowedRoles::contains);
         if (hasRoleAdminOrAuthor) {
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             Article article = Article.builder()
@@ -80,7 +85,7 @@ public class ArticleServiceImpl implements ArticleService {
                     .build();
             return articleRepository.save(article);
         } else {
-            throw new BadCredentialsException("You don not have permission to add new article");
+            throw new ForbiddenException("Insufficient privilege");
         }
     }
 
@@ -92,7 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_AUTHOR));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN.toString()) || r.getName().equals(ERoleName.ROLE_AUTHOR.toString()));
         if (hasRoleAdminOrAuthor) {
             mapper.map(articleDto, article);
             article.setCategory(category);
@@ -108,13 +113,13 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_APPROVE));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN.toString()) || r.getName().equals(ERoleName.ROLE_APPROVE.toString()));
         if (hasRoleAdminOrAuthor) {
             article.setStatus(status);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             return articleRepository.save(article);
         }
-        throw new BadCredentialsException("You don not have permission to update article");
+        throw new ForbiddenException("Insufficient privilege");
     }
 
     @Override
@@ -123,13 +128,13 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
         boolean hasRoleAdminOrAuthor = roles.stream()
-                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN) || r.getName().equals(ERoleName.ROLE_APPROVE));
+                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN.toString()) || r.getName().equals(ERoleName.ROLE_APPROVE.toString()));
         if (hasRoleAdminOrAuthor) {
             article.setActive(false);
             article.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
             articleRepository.save(article);
         } else {
-            throw new BadCredentialsException("You do not have permission to delete this article");
+            throw new ForbiddenException("Insufficient privilege");
         }
     }
 
@@ -238,8 +243,10 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void crawlData(String category, User user) throws IOException {
         List<Role> roles = roleRepository.getAllByUser(user.getId());
-        boolean hasRoleAdmin = roles.stream()
-                .anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (hasRoleAdmin) {
             Document doc = Jsoup.connect("https://vnexpress.net/" + category).get();
             List<ArticleData> articleDataList = new ArrayList<>();
@@ -330,7 +337,7 @@ public class ArticleServiceImpl implements ArticleService {
                 articleRepository.save(article);
             }
         } else {
-            throw new BadCredentialsException("You don not have permission to crawl articles");
+            throw new ForbiddenException("Insufficient privilege");
         }
     }
 }

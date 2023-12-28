@@ -1,6 +1,8 @@
 package com.quangtoi.good_news.service.impl;
 
 import com.quangtoi.good_news.dto.AuthorResponse;
+import com.quangtoi.good_news.dto.enumeration.ERoleName;
+import com.quangtoi.good_news.exception.ForbiddenException;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Authors;
 import com.quangtoi.good_news.pojo.Role;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +42,7 @@ public class AuthorServiceImpl implements AuthorService {
     public AuthorResponse registerAuthor(User currentUser, AuthorRequest authorRequest) throws Exception {
         Authors authorSaved = authorRepository.findByUser(currentUser);
         if (authorSaved != null) {
-            throw new Exception("Tài khoản này đã gửi yêu cầu. Vui lòng chờ xác nhận.");
+            throw new RuntimeException("Tài khoản này đã gửi yêu cầu. Vui lòng chờ xác nhận.");
         }
         Authors authors = Authors.builder()
                 .isConfirmed(false)
@@ -100,9 +103,9 @@ public class AuthorServiceImpl implements AuthorService {
         Authors authors = authorRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
-        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals(ERoleName.ROLE_ADMIN.toString()));
         if (!hasRoleAdmin) {
-            throw new BadCredentialsException("You do not have permission");
+            throw new ForbiddenException("Insufficient privilege");
         }
         authors.setAuthorName(authorRequest.getAuthorName());
         return authorRepository.save(authors);
@@ -113,13 +116,16 @@ public class AuthorServiceImpl implements AuthorService {
         Authors authors = authorRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
-        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (hasRoleAdmin) {
             authors.setConfirmed(true);
+            return authorRepository.save(authors);
         } else {
-            throw new BadCredentialsException("You do not have permission");
+            throw new ForbiddenException("Insufficient privilege");
         }
-        return authorRepository.save(authors);
     }
 
     @Override
@@ -150,11 +156,14 @@ public class AuthorServiceImpl implements AuthorService {
         Authors authors = authorRepository.findById(authorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Author", "id", authorId));
         List<Role> roles = roleRepository.getAllByUser(currentUser.getId());
-        boolean hasRoleAdmin = roles.stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (hasRoleAdmin) {
             authorRepository.delete(authors);
         } else {
-            throw new BadCredentialsException("You do not have permission to delete");
+            throw new ForbiddenException("You do not have permission to delete");
         }
     }
 }

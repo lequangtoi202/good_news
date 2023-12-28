@@ -29,78 +29,42 @@ public class AuthorController {
 
     @PostMapping(Routing.AUTHORS)
     public ResponseEntity<?> registerAuthor(@RequestBody final AuthorRequest authorRequest) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        AuthorResponse authorResponse = authorService.registerAuthor(currentUser, authorRequest);
-                        return ResponseEntity.ok(authorResponse);
-                    } catch (Exception e) {
-                        return ResponseEntity.badRequest().body(e.getMessage());
-                    }
-                }
-            }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        try {
+            AuthorResponse authorResponse = authorService.registerAuthor(currentUser, authorRequest);
+            return ResponseEntity.ok(authorResponse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @PutMapping(Routing.AUTHORS)
     public ResponseEntity<?> updateAuthor(@RequestBody final AuthorRequest authorRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    AuthorResponse authorResponse = authorService.updateAuthor(currentUser, authorRequest);
-                    return ResponseEntity.ok(authorResponse);
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        AuthorResponse authorResponse = authorService.updateAuthor(currentUser, authorRequest);
+        return ResponseEntity.ok(authorResponse);
     }
 
     @PutMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> updateAuthorById(@RequestBody final AuthorRequest authorRequest, @PathVariable("authorId") final Long authorId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    Authors authorUpdated = authorService.updateAuthorById(currentUser, authorRequest, authorId);
-                    return ResponseEntity.ok(authorUpdated);
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        Authors authorUpdated = authorService.updateAuthorById(currentUser, authorRequest, authorId);
+        return ResponseEntity.ok(authorUpdated);
     }
 
     @PostMapping(Routing.CONFIRM_AUTHOR)
     public ResponseEntity<?> confirmAuthor(@PathVariable("authorId") final Long authorId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        Authors authorResponse = authorService.confirmAuthor(currentUser, authorId);
-                        return ResponseEntity.ok(authorResponse);
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        try {
+            Authors authorResponse = authorService.confirmAuthor(currentUser, authorId);
+            return ResponseEntity.ok(authorResponse);
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping(Routing.AUTHORS)
@@ -118,43 +82,19 @@ public class AuthorController {
 
     @DeleteMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> deleteAuthorById(@PathVariable("authorId") final Long authorId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        authorService.deleteAuthorById(currentUser, authorId);
-                        return ResponseEntity.ok("Successfully");
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        try {
+            authorService.deleteAuthorById(currentUser, authorId);
+            return ResponseEntity.ok("Successfully");
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping(Routing.AUTHOR_BY_ID)
     public ResponseEntity<?> getAuthorById(@PathVariable("authorId") final Long authorId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        return ResponseEntity.ok(authorService.getAuthorsById(authorId));
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(authorService.getAuthorsById(authorId));
     }
 
     @GetMapping(Routing.AUTHOR_BY_USERID)
@@ -165,22 +105,9 @@ public class AuthorController {
 
     @GetMapping(Routing.AUTHOR_ME)
     public ResponseEntity<?> getAuthorMe() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        Authors author = authorService.getAuthorsByUserId(currentUser.getId());
-                        return ResponseEntity.ok(author);
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        Authors author = authorService.getAuthorsByUserId(currentUser.getId());
+        return ResponseEntity.ok(author);
     }
 }
