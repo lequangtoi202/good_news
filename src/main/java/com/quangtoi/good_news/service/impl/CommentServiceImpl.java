@@ -1,5 +1,7 @@
 package com.quangtoi.good_news.service.impl;
 
+import com.quangtoi.good_news.dto.enumeration.ERoleName;
+import com.quangtoi.good_news.exception.ForbiddenException;
 import com.quangtoi.good_news.exception.ResourceNotFoundException;
 import com.quangtoi.good_news.pojo.Article;
 import com.quangtoi.good_news.pojo.Comment;
@@ -8,6 +10,7 @@ import com.quangtoi.good_news.repository.ArticleRepository;
 import com.quangtoi.good_news.repository.CommentRepository;
 import com.quangtoi.good_news.repository.RoleRepository;
 import com.quangtoi.good_news.service.CommentService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -24,20 +29,16 @@ public class CommentServiceImpl implements CommentService {
     private ArticleRepository articleRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private ModelMapper mapper;
 
     @Override
     public Comment addComment(Comment commentReq, Long articleId, Long userId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Article", "id", articleId));
-        Comment comment = Comment.builder()
-                .article(article)
-                .content(commentReq.getContent())
-                .active(true)
-                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
-                .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
-                .parentId(commentReq.getParentId() == null ? null : commentReq.getParentId())
-                .userId(userId)
-                .build();
+        Comment comment = mapper.map(commentReq, Comment.class);
+        comment.setArticle(article);
+        comment.setUserId(userId);
         return commentRepository.save(comment);
     }
 
@@ -66,9 +67,12 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
         List<Role> roles = roleRepository.getAllByUser(userId);
-        boolean hasRoleAdmin = roles.stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (!hasRoleAdmin) {
-            throw new BadCredentialsException("You do not have role to update this comment");
+            throw new ForbiddenException("Insufficient privilege");
         }
         comment.setArticle(article);
         comment.setContent(commentReq.getContent());
@@ -81,12 +85,15 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
         List<Role> roles = roleRepository.getAllByUser(userId);
-        boolean hasRoleAdmin = roles.stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        Set<String> roleNames = roles.stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        boolean hasRoleAdmin = roleNames.contains(ERoleName.ROLE_ADMIN.toString());
         if (hasRoleAdmin || comment.getUserId() == userId) {
             comment.setActive(false);
             commentRepository.save(comment);
         } else {
-            throw new BadCredentialsException("You do not have role to delete this comment");
+            throw new ForbiddenException("Insufficient privilege");
         }
 
     }

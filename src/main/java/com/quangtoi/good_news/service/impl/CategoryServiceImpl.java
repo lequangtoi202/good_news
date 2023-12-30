@@ -5,6 +5,7 @@ import com.quangtoi.good_news.pojo.Category;
 import com.quangtoi.good_news.repository.CategoryRepository;
 import com.quangtoi.good_news.service.CategoryService;
 import com.quangtoi.good_news.service.ImageService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,8 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private ModelMapper mapper;
 
     @Override
     public Category addCategory(Category category, MultipartFile image) {
@@ -39,11 +42,11 @@ public class CategoryServiceImpl implements CategoryService {
     public Category updateCategory(Category category, Long cateId, MultipartFile image) {
         Category categoryUpdate = categoryRepository.findById(cateId)
                         .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
+        mapper.map(category, categoryUpdate);
         categoryUpdate.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        categoryUpdate.setDescription(category.getDescription());
-        categoryUpdate.setActive(category.isActive());
-        categoryUpdate.setName(category.getName());
-        categoryUpdate.setImage(image == null ? null : imageService.uploadImage(image));
+        if (image != null) {
+            categoryUpdate.setImage(imageService.uploadImage(image));
+        }
         return categoryRepository.save(categoryUpdate);
     }
 

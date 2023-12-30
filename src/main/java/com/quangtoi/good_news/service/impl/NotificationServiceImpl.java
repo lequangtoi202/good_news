@@ -30,6 +30,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setSentAt(Timestamp.valueOf(LocalDateTime.now()));
         notification.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         Notification notificationSaved = notificationRepository.save(notification);
+
         UserNotification userNotification = new UserNotification();
         userNotification.setNotificationId(notificationSaved.getId());
         userNotification.setUserId(user.getId());

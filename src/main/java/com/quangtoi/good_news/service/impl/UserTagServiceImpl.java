@@ -26,11 +26,7 @@ public class UserTagServiceImpl implements UserTagService {
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
         UserTag userTag = userTagRepository.findByUserIdAndTagId(userId, tag.getId());
         if (userTag != null) {
-            if (!userTag.isActive()) {
-                userTag.setActive(true);
-            } else {
-                userTag.setActive(false);
-            }
+            userTag.setActive(!userTag.isActive());
             userTag.setUpdatedOn(Timestamp.valueOf(LocalDateTime.now()));
             return userTagRepository.save(userTag);
         } else {
@@ -42,7 +38,6 @@ public class UserTagServiceImpl implements UserTagService {
             newUserTag.setCreatedOn(Timestamp.valueOf(LocalDateTime.now()));
             return userTagRepository.save(newUserTag);
         }
-
     }
 
     @Override
@@ -51,7 +46,7 @@ public class UserTagServiceImpl implements UserTagService {
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
         UserTag userTag = userTagRepository.findByUserIdAndTagId(userId, tag.getId());
         if (userTag == null) {
-            throw new Exception("UserTag not found with user " + userId + " and tag " + tagId);
+            throw new Exception("UserTag does not found with user " + userId + " and tag " + tagId);
         }
         return userTag;
     }

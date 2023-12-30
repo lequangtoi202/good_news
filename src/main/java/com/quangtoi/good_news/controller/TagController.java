@@ -49,82 +49,31 @@ public class TagController {
 
     @PostMapping(Routing.TAGS)
     public ResponseEntity<?> addTag(@RequestBody final Tag tag) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(tagService.addTag(tag));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(tagService.addTag(tag));
     }
 
     @PutMapping(Routing.TAG_BY_ID)
     public ResponseEntity<?> updateTag(@PathVariable("tagId") final Long tagId, @RequestBody final Tag tag) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(tagService.updateTag(tag, tagId));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(tagService.updateTag(tag, tagId));
     }
 
     @DeleteMapping(Routing.TAG_BY_ID)
     public ResponseEntity<?> deleteTag(@PathVariable("tagId") final Long tagId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    tagService.deleteTag(tagId);
-                    return ResponseEntity.ok("Successfully");
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        tagService.deleteTag(tagId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(Routing.FOLLOW_TAG)
     public ResponseEntity<?> toggleFollowTag(@PathVariable("tagId") long tagId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(userTagService.followTag(tagId, currentUser.getId()));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(userTagService.followTag(tagId, currentUser.getId()));
     }
 
     @GetMapping(Routing.FOLLOW_TAG_STATUS)
     public ResponseEntity<?> getFollowStatus(@PathVariable("tagId") long tagId) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(userTagService.getFollowStatus(tagId, currentUser.getId()));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(userTagService.getFollowStatus(tagId, currentUser.getId()));
     }
 }

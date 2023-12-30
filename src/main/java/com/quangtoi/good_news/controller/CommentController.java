@@ -44,72 +44,32 @@ public class CommentController {
 
     @PostMapping(Routing.COMMENTS_BY_ARTICLE)
     public ResponseEntity<?> addComment(@PathVariable("articleId") final Long articleId, @RequestBody final Comment commentReq) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(commentService.addComment(commentReq, articleId, currentUser.getId()));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(commentService.addComment(commentReq, articleId, currentUser.getId()));
     }
 
     @PostMapping(Routing.COMMENTS_BY_ARTICLE_AND_PARENT_ID)
     public ResponseEntity<?> replyComment(@PathVariable("articleId") final Long articleId,
                                           @PathVariable("parentId") final Long parentId,
                                           @RequestBody final Comment commentReq) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(commentService.replyComment(commentReq, articleId, parentId, currentUser.getId()));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(commentService.replyComment(commentReq, articleId, parentId, currentUser.getId()));
     }
 
     @PutMapping(Routing.COMMENT_BY_ARTICLE_AND_COMMENT_ID)
     public ResponseEntity<?> updateComment(@PathVariable("articleId") final Long articleId, @PathVariable("commentId") final Long commentId, @RequestBody Comment commentReq) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(commentService.updateComment(commentReq, articleId, commentId, currentUser.getId()));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(commentService.updateComment(commentReq, articleId, commentId, currentUser.getId()));
     }
 
     @DeleteMapping(Routing.COMMENT_BY_ID)
     public ResponseEntity<?> deleteComment(@PathVariable("commentId") final Long commentId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        commentService.deleteComment(commentId, currentUser.getId());
-                        return ResponseEntity.ok("Successfully");
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        commentService.deleteComment(commentId, currentUser.getId());
+        return ResponseEntity.noContent().build();
     }
 }

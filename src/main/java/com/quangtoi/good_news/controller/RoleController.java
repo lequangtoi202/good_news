@@ -46,50 +46,17 @@ public class RoleController {
 
     @PostMapping(Routing.ROLES)
     public ResponseEntity<?> addRole(@RequestBody final Role role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(roleService.addRole(role));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(roleService.addRole(role));
     }
 
     @PutMapping(Routing.ROLE_BY_ID)
     public ResponseEntity<?> updateRole(@PathVariable("roleId") final Long roleId, @RequestBody final Role role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(roleService.updateRole(role, roleId));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.ok(roleService.updateRole(role, roleId));
     }
 
     @DeleteMapping(Routing.ROLE_BY_ID)
     public ResponseEntity<?> deleteRole(@PathVariable("roleId") final Long roleId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    roleService.deleteRole(roleId);
-                    return ResponseEntity.ok("Successfully");
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        roleService.deleteRole(roleId);
+        return ResponseEntity.noContent().build();
     }
 }

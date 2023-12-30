@@ -163,7 +163,7 @@ public class AuthorServiceImpl implements AuthorService {
         if (hasRoleAdmin) {
             authorRepository.delete(authors);
         } else {
-            throw new ForbiddenException("You do not have permission to delete");
+            throw new ForbiddenException("Insufficient privilege");
         }
     }
 }

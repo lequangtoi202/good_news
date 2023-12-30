@@ -58,35 +58,12 @@ public class CategoryController {
                                             @RequestPart("image") final MultipartFile image) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         Category category = objectMapper.readValue(categoryReq, Category.class);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    return ResponseEntity.ok(categoryService.updateCategory(category, cateId, image));
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
+        return ResponseEntity.ok(categoryService.updateCategory(category, cateId, image));
     }
 
     @DeleteMapping(Routing.CATEGORY_BY_ID)
     public ResponseEntity<?> deleteCategory(@PathVariable("cateId") final Long cateId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    categoryService.deleteCategory(cateId);
-                    return ResponseEntity.ok("Successfully");
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        categoryService.deleteCategory(cateId);
+        return ResponseEntity.noContent().build();
     }
 }

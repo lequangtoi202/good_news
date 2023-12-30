@@ -43,23 +43,10 @@ public class NotificationController {
 
     @DeleteMapping(Routing.NOTIFICATION_BY_ID)
     public ResponseEntity<?> deleteNotification(@PathVariable("notifiId") final Long notifiId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                if (currentUser != null) {
-                    try {
-                        notificationService.deleteNotification(currentUser.getId(), notifiId);
-                        return ResponseEntity.ok("Successfully");
-                    } catch (BadCredentialsException e) {
-                        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-                    }
-                }
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        notificationService.deleteNotification(currentUser.getId(), notifiId);
+        return ResponseEntity.noContent().build();
 
     }
 }

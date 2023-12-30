@@ -51,15 +51,8 @@ public class UserController {
 
     @GetMapping(Routing.ME)
     public ResponseEntity<?> getMyAccount() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                return ResponseEntity.ok(userService.getMyAccount(username));
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        return ResponseEntity.ok(userService.getMyAccount(username));
     }
 
     @GetMapping(Routing.USER_BY_EMAIL)
@@ -78,16 +71,9 @@ public class UserController {
             @RequestPart("avatar") final MultipartFile avatar) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            Object principal = authentication.getPrincipal();
-            if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                User currentUser = userService.getByUsername(username);
-                return ResponseEntity.ok(userService.updateProfile(req, avatar, currentUser));
-            }
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        User currentUser = userService.getByUsername(username);
+        return ResponseEntity.ok(userService.updateProfile(req, avatar, currentUser));
     }
 
     @PutMapping(value = Routing.USER_BY_ID, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -97,13 +83,8 @@ public class UserController {
             @RequestPart("avatar") final MultipartFile avatar) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         RegisterRequest req = objectMapper.readValue(registerRequest, RegisterRequest.class);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            User currentUser = userService.findUserById(userId);
-            return ResponseEntity.ok(userService.updateProfile(req, avatar, currentUser));
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        User currentUser = userService.findUserById(userId);
+        return ResponseEntity.ok(userService.updateProfile(req, avatar, currentUser));
     }
 
     @GetMapping(Routing.FORGOT_PASSWORD)

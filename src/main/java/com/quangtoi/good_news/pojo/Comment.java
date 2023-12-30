@@ -38,7 +38,7 @@ public class Comment implements Serializable {
     private Long userId;
 
     @Basic
-    @Column(name = "active", nullable = false)
+    @Column(name = "active", nullable = false, columnDefinition="boolean default true")
     private boolean active;
 
     @ManyToOne
