@@ -14,4 +14,6 @@ public interface NotificationService {
     Notification getNotificationById(Long notificationId);
 
     List<Notification> getAllNotificationsByUserId(Long userId);
+
+    void handlePushNotificationToUsers();
 }

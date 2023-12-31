@@ -164,12 +164,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Page<Article> getAllArticlesIsActive(Pageable pageable) {
-        return articleRepository.findAllByActive(true, pageable);
-    }
-
-    @Override
-    public List<Article> getLimitNewestArticlesIsActive(Long cateId, int limit) {
+    public List<Article> getLimitNewestArticles(Long cateId, int limit) {
         Category category = categoryRepository.findById(cateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", cateId));
         Pageable pageable = PageRequest.of(0, limit);
@@ -177,18 +172,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllArticlesWithStatusIsActive(String type) {
-        return articleRepository.findAllByActiveAndStatus(true, type);
+    public List<Article> getAllArticlesWithStatus(boolean active, String type) {
+        return articleRepository.findAllByActiveAndStatus(active, type);
     }
 
     @Override
-    public Page<Article> getAllArticlesIsNotActive(Pageable pageable) {
-        return articleRepository.findAllByActive(false, pageable);
-    }
-
-    @Override
-    public List<Article> getAllArticlesWithStatusIsNotActive(String type) {
-        return articleRepository.findAllByActiveAndStatus(false, type);
+    public Page<Article> getAllArticles(Pageable pageable, boolean active) {
+        return articleRepository.findAllByActive(active, pageable);
     }
 
     @Override
@@ -202,7 +192,14 @@ public class ArticleServiceImpl implements ArticleService {
     public List<Article> getAllArticlesByTag(Long tagId) {
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
-        return articleRepository.findAllByTagAndActive(tag.getId(), true);
+        return articleRepository.findAllByTag(tag.getId());
+    }
+
+    @Override
+    public List<Article> getAllArticlesNewestByTag(Long tagId) {
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag", "id", tagId));
+        return articleRepository.findAllNewestByTag(tag.getId());
     }
 
     @Override

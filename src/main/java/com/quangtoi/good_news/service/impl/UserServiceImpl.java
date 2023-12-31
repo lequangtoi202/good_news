@@ -219,6 +219,11 @@ public class UserServiceImpl implements UserService {
         return registerNotificationRepository.save(registerNotification);
     }
 
+    @Override
+    public List<User> getAllUsersByTag(Long tagId) {
+        return userRepository.getAllUsersByTag(tagId);
+    }
+
 
     @Override
     public void processOAuthPostLogin(String username) {

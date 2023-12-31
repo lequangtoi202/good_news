@@ -44,5 +44,7 @@ public interface UserService extends UserDetailsService {
 
     RegisterNotification cancelReceiveNotification(String email);
 
+    List<User> getAllUsersByTag(Long tagId);
+
     void processOAuthPostLogin(String username);
 }

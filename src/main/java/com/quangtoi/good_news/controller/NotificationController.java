@@ -47,6 +47,5 @@ public class NotificationController {
         User currentUser = userService.getByUsername(username);
         notificationService.deleteNotification(currentUser.getId(), notifiId);
         return ResponseEntity.noContent().build();
-
     }
 }

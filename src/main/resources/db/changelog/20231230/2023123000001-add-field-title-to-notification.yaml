@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20231230000001-1
+      author: toi.lequang
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                columnExists:
+                  schemaName: good_news
+                  tableName: notification
+                  columnName: title
+        - addColumn:
+            schemaName: good_news
+            tableName: notification
+            columns:
+              - column:
+                  name: title
+                  type: text
+                  constraints:
+                    nullable: true
+      comment: add field title to notification

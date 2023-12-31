@@ -24,19 +24,17 @@ public interface ArticleService {
 
     boolean deleteTagFromArticle(Long articleId, Long tagId);
 
-    Page<Article> getAllArticlesIsActive(Pageable pageable);
+    List<Article> getLimitNewestArticles(Long cateId, int limit);
 
-    List<Article> getLimitNewestArticlesIsActive(Long cateId, int limit);
+    List<Article> getAllArticlesWithStatus(boolean active, String type);
 
-    List<Article> getAllArticlesWithStatusIsActive(String type);
-
-    Page<Article> getAllArticlesIsNotActive(Pageable pageable);
-
-    List<Article> getAllArticlesWithStatusIsNotActive(String type);
+    Page<Article> getAllArticles(Pageable pageable, boolean active);
 
     List<Article> getAllArticlesByCategory(Long cateId);
 
     List<Article> getAllArticlesByTag(Long tagId);
+
+    List<Article> getAllArticlesNewestByTag(Long tagId);
 
     List<Article> getTop3ArticleNewest();
 

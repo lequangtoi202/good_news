@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +32,12 @@ public class ArticleController {
 
     @GetMapping(Routing.ARTICLES)
     public ResponseEntity<?> getAllArticles(
-            @RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
+            @RequestParam(value = "active", required = false, defaultValue = "true") final boolean active,
             @RequestParam("pageSize") int pageSize,
             @RequestParam("pageNumber") int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        if (isActive) {
-            return ResponseEntity.ok().body(articleService.getAllArticlesIsActive(pageable));
-        } else {
-            return ResponseEntity.ok().body(articleService.getAllArticlesIsNotActive(pageable));
-        }
+        return ResponseEntity.ok().body(articleService.getAllArticles(pageable, active));
+
     }
 
     @GetMapping(Routing.TOP3_ARTICLES)
@@ -50,23 +46,19 @@ public class ArticleController {
     }
 
     @GetMapping(Routing.ARTICLES_STATUS)
-    public ResponseEntity<?> getAllArticlesPublish(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean isActive,
+    public ResponseEntity<?> getAllArticlesPublish(@RequestParam(value = "active", required = false, defaultValue = "true") final boolean active,
                                                    @RequestParam(value = "type") String type) {
         if (!Utility.isValidArticleStatus(type)) {
             return ResponseEntity.badRequest().body("Giá trị 'type' không hợp lệ");
         }
-        if (isActive) {
-            return ResponseEntity.ok().body(articleService.getAllArticlesWithStatusIsActive(type.toUpperCase()));
-        } else {
-            return ResponseEntity.ok().body(articleService.getAllArticlesWithStatusIsNotActive(type.toUpperCase()));
-        }
+        return ResponseEntity.ok().body(articleService.getAllArticlesWithStatus(active, type.toUpperCase()));
+
     }
 
     @GetMapping(Routing.NEWEST_ARTICLES_BY_CATEGORY)
     public ResponseEntity<?> getAllTopNewestArticleArticles(@PathVariable("cateId") Long cateId,
                                                             @RequestParam(value = "limit", defaultValue = "1") int limit) {
-
-        return ResponseEntity.ok().body(articleService.getLimitNewestArticlesIsActive(cateId, limit));
+        return ResponseEntity.ok().body(articleService.getLimitNewestArticles(cateId, limit));
 
     }
 
@@ -95,63 +87,43 @@ public class ArticleController {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userService.getByUsername(username);
         ArticleDto articleDto = objectMapper.readValue(articleRequest, ArticleDto.class);
-        try {
-            Article articleSaved = articleService.addArticle(articleDto, currentUser, image);
-            return new ResponseEntity<>(articleSaved, HttpStatus.CREATED);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        Article articleSaved = articleService.addArticle(articleDto, currentUser, image);
+        return new ResponseEntity<>(articleSaved, HttpStatus.CREATED);
     }
 
     @PutMapping(Routing.ARTICLE_BY_ID)
     public ResponseEntity<?> updateArticle(@RequestBody final ArticleDto articleRequest, @PathVariable("articleId") final Long articleId) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userService.getByUsername(username);
-        try {
-            Article articleSaved = articleService.updateArticle(articleRequest, articleId, currentUser);
-            return new ResponseEntity<>(articleSaved, HttpStatus.OK);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        Article articleSaved = articleService.updateArticle(articleRequest, articleId, currentUser);
+        return new ResponseEntity<>(articleSaved, HttpStatus.OK);
     }
 
     @DeleteMapping(Routing.ARTICLE_BY_ID)
     public ResponseEntity<?> deleteArticle(@PathVariable("articleId") final Long articleId) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userService.getByUsername(username);
-        try {
-            articleService.deleteArticle(articleId, currentUser);
-            return new ResponseEntity<>("Delete article successfully", HttpStatus.NO_CONTENT);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        articleService.deleteArticle(articleId, currentUser);
+        return new ResponseEntity<>("Delete article successfully", HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(Routing.ADD_TAG_TO_ARTICLE)
     public ResponseEntity<?> addTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
-        try {
-            boolean result = articleService.addTagToArticle(articleId, tagId);
-            if (result) {
-                return new ResponseEntity<>("Successfully", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        boolean result = articleService.addTagToArticle(articleId, tagId);
+        if (result) {
+            return new ResponseEntity<>("Successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping(Routing.DELETE_TAG_TO_ARTICLE)
     public ResponseEntity<?> deleteTagToArticle(@RequestParam("articleId") final Long articleId, @RequestParam("tagId") final Long tagId) {
-        try {
-            boolean result = articleService.deleteTagFromArticle(articleId, tagId);
-            if (result) {
-                return new ResponseEntity<>("Successfully", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        boolean result = articleService.deleteTagFromArticle(articleId, tagId);
+        if (result) {
+            return new ResponseEntity<>("Successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Failure", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -159,27 +131,19 @@ public class ArticleController {
     public ResponseEntity<?> updateStatusArticle(@PathVariable("articleId") final Long articleId, @RequestParam("status") String status) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userService.getByUsername(username);
-        try {
-            if (!Utility.isValidArticleStatus(status)) {
-                return ResponseEntity.badRequest().body("Giá trị 'status' không hợp lệ");
-            }
-            Article article = articleService.updateStatusArticle(status, articleId, currentUser);
-            return ResponseEntity.ok(article);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        if (!Utility.isValidArticleStatus(status)) {
+            return ResponseEntity.badRequest().body("Unknown status");
         }
+        Article article = articleService.updateStatusArticle(status, articleId, currentUser);
+        return ResponseEntity.ok(article);
     }
 
     @PostMapping(Routing.ADD_READING_TURN)
     public ResponseEntity<?> addArticleRead(@PathVariable("articleId") final Long articleId) {
         String username = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
         User currentUser = userService.getByUsername(username);
-        try {
-            UserArticle articleRead = articleService.addArticleRead(articleId, currentUser);
-            return ResponseEntity.ok(articleRead);
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        UserArticle articleRead = articleService.addArticleRead(articleId, currentUser);
+        return ResponseEntity.ok(articleRead);
     }
 
     @PostMapping(Routing.CRAWL_DATA_FROM_VNEXPRESS)
@@ -192,9 +156,6 @@ public class ArticleController {
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
-        } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
     }
-
 }

@@ -21,6 +21,10 @@ public class Notification implements Serializable {
     private Long id;
 
     @Basic
+    @Column(name = "title", length = -1)
+    private String title;
+
+    @Basic
     @Column(name = "content", length = -1)
     private String content;
 

@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/20230929/20230929000001-create-table-to-receive-notification.yaml
   - include:
       file: db/changelog/20230930/2023093000001-add-column-provider-to-login-with-google.yaml
+  - include:
+      file: db/changelog/20231230/2023123000001-add-field-title-to-notification.yaml
